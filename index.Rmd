@@ -1,6 +1,6 @@
 --- 
-title: "YOUR TITLE HERE"
-author: "YOUR NAMES HERE"
+title: "Evaluating the Value of Player in Fantasy Premier League"
+author: "Elliot Frank, Sebastian Steiner, Alan Yang"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 ---
