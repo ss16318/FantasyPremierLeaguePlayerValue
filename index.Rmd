@@ -1,5 +1,5 @@
 --- 
-title: "Evaluating the Value of Player in Fantasy Premier League"
+title: "Evaluating the Value of Players in Fantasy Premier League"
 author: "Elliot Frank, Sebastian Steiner, Alan Yang"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
