@@ -1,7 +1,9 @@
 introduction
 proposal
 research-topic
+provide-a-short-description-of-your-topic.-suggested-approximately-12-page
 data-availability
+identify-one-or-more-data-sources-see-ii.-d.-above-that-you-propose-to-draw-on-for-the-project.-for-each-describe-how-the-data-are-collected-and-by-whom.-describe-the-format-of-the-data-the-frequency-of-updates-and-any-other-relevant-information.-carefully-document-your-sources-with-links.-explain-how-you-plan-to-import-the-data.-suggested-approximately-1.5---2-pages
 data
 sources
 cleaning-transformation
