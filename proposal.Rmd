@@ -51,13 +51,13 @@ Overlord also holds incentives to ensure their data is correct, as errors in
 data collection undermines their  objective of providing accurate forecasts.
 
 In the case that we found errors in the data, we could contact Fantasy Overlord using
-the following methods:
-1) Raising the issue in the comments section of the website
-2) Contacting their Twitter page to notify them of the issue
+the following methods: \
+1) Raising the issue in the comments section of the website (http://fantasyoverlord.com/FPL/CommentsPage) \
+2) Contacting their Twitter page to notify them of the issue (https://twitter.com/foverlord) \
 
 Further, if the source of the error came from Opta, we could raise this issue through
-their "Get In Touch" page. Hence, we are able to contact our sources of data should 
-there be doubt about accuracy.
+their "Get In Touch" page (https://www.statsperform.com/contact/). Hence, we are able 
+to contact our sources of data should there be doubt about accuracy.
 
 
 ### Data File Format and Importing
