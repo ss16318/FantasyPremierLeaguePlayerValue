@@ -82,7 +82,8 @@ The CSV files contains basic player attributes such as: Name, Position, and Team
 Player performance metrics include Total Points, Assists, Minutes Played, Goals Scored, 
 Yellow Cards, Red Cards, and Clean Sheets. Player cost metrics include Cost, 
 Total Points Per Dollar, Average Points Per Dollar, and Price Change From Previous Week.
-Lastly, player point metrics include Points Last Round, Total Points, and Average Points Per Week.
+Lastly, player point metrics include Points Last Round, Total Points, and Average Points 
+Per Week.
 
 Additionally, there a number of fields capturing the performance of goalies, however
 we are choosing to exclude the position from our analysis as the evaluation metrics
