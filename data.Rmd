@@ -37,7 +37,12 @@ df <- rbind(season16, season17, season18, season19, season20, season21)
 # Only selecting raw stats that are relevant (and re-ordering them)
 df <- select( df, c(PositionsList, Team, Cost, TotalPoints, MinutesPlayed, AveragePoints, GoalsScored, GoalsScoredPoints, Assists, CleanSheets, CleanSheetPoints, GoalsConceded, GoalsConcededPoints, PenaltiesMissed, OwnGoals, YellowCards, RedCards, Bonus, SelectedByPercent, LastSeasonPoints ))
 
-# Note no assist points, we can calculate this (same with minutes played points)
+df <- df %>% 
+   mutate(Cost = Cost / 1000000)            #convert cost to millions
+   filter(df, PositionsList != "GLK")       #not analyzing goalkeepers
+
+
+
 
 ```
 
@@ -46,6 +51,17 @@ df <- select( df, c(PositionsList, Team, Cost, TotalPoints, MinutesPlayed, Avera
 library(ggplot2)
 
 ggplot(df, aes(x=Cost, y=TotalPoints)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+```
+
+```{r, fig.align = 'center'}
+
+# We only want to consider players with at least 100 points
+d <- filter(df, TotalPoints > 100)
+
+ggplot(d, aes(x=Cost, y=TotalPoints)) + 
   geom_point() +
   geom_smooth(method = "lm", se = FALSE)
 
