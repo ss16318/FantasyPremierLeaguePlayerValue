@@ -35,7 +35,7 @@ season21 <- select(season21, -c(ICTIndex,GW38Forecast))
 df <- rbind(season16, season17, season18, season19, season20, season21)
 
 # Only selecting raw stats that are relevant (and re-ordering them)
-df <- select( df, c(PositionsList, Team, Cost, TotalPoints, MinutesPlayed, AveragePoints, GoalsScored, GoalsScoredPoints, Assists, CleanSheets, CleanSheetPoints, GoalsConceded, GoalsConcededPoints, PenaltiesMissed, OwnGoals, YellowCards, RedCards, Bonus, SelectedByPercent, LastSeasonPoints ))
+df <- select( df, c(PositionsList, Team, Cost, TotalPoints, MinutesPlayed, GoalsScored, GoalsScoredPoints, Assists, CleanSheets, CleanSheetPoints, GoalsConceded, GoalsConcededPoints, PenaltiesMissed, OwnGoals, YellowCards, RedCards, Bonus, SelectedByPercent, LastSeasonPoints ))
 
 df <- df %>% 
    mutate(Cost = Cost / 1000000)            #convert cost to millions
@@ -68,4 +68,16 @@ ggplot(d, aes(x=Cost, y=TotalPoints)) +
 ```
 
 ## Missing value analysis
+
+```{r, fig.align = 'center'}
+
+# Each player gets 3 points per assists
+d <- d %>% 
+   mutate(AssistPoints = Assists * 3)
+
+#Dealing with minutes played points
+
+          
+
+```
 
