@@ -1,0 +1,61 @@
+# Data 
+## Sources
+
+# Source: http://fantasyoverlord.com/FPL/History
+# Season stats for 2017 to 2021 season
+# Data pulled on Tue Nov 29 @11:54 AM
+
+## Cleaning / transformation
+
+```{r, fig.align = 'center'}
+library(tidyverse)
+# IMPORTANT COMMENTS: 2019 week 3 is an empty data file, it's missing
+# 2016 data was missing weeks 1-5 so only did 2017
+
+# EF: sets up empty dataframe with all required columns, will serve as master dataset
+
+all_columns <- c("FirstName", "Surname", "Week", "Season", "PositionsList", "Team", 
+                 "Cost", "PointsLastRound", "TotalPoints", "TransfersOut", "YellowCards", 
+                 "GoalsConceded", "GoalsConcededPoints", "GoalsScored", "GoalsScoredPoints",
+                 "TransfersOutRound", "PriceRise", "PriceFallRound", "LastSeasonPoints", 
+                 "PriceFall", "PenaltiesMissed", "Form", "Bonus", "CleanSheets", 
+                 "CleanSheetPoints", "Assists", "SelectedByPercent", "TransfersIn",
+                 "OwnGoals","MinutesPlayed", "TransfersInRound", "PriceRiseRound", 
+                 "RedCards")
+
+
+import_columns <- c("FirstName", "Surname", "PositionsList", "Team", 
+                 "Cost", "PointsLastRound", "TotalPoints", "TransfersOut", "YellowCards", 
+                 "GoalsConceded", "GoalsConcededPoints", "GoalsScored", "GoalsScoredPoints",
+                 "TransfersOutRound", "PriceRise", "PriceFallRound", "LastSeasonPoints", 
+                 "PriceFall", "PenaltiesMissed", "Form", "Bonus", "CleanSheets", 
+                 "CleanSheetPoints", "Assists", "SelectedByPercent", "TransfersIn",
+                 "OwnGoals","MinutesPlayed", "TransfersInRound", "PriceRiseRound", 
+                 "RedCards")
+
+df_main <- data.frame(matrix(ncol = length(all_columns), nrow = 0))
+colnames(df_main) <- all_columns
+
+# EF: compiles all years and weeks 
+years <- list('2017', '2018', '2019', '2020', '2021')
+for (yr in years ) {
+  print(yr)
+  folder <- paste0("Data/main/season_", yr)
+  all_weeks <- list.files(path=folder, pattern = "*.csv")
+for (week in all_weeks) {
+  data_file = paste0(folder, "/", week)
+  temp_csv <- read_csv(data_file)
+  temp_df  <- temp_csv[import_columns]
+  
+  # Applying time period and removing goalies
+  temp_df$Week <- substr(week, 9,10)
+  temp_df$Season <- yr
+  temp_df = filter(temp_df, PositionsList != "GLK")
+  
+  df_main <- rbind(df_main, temp_df)
+}
+}
+
+write.csv(df_main, "Data/main/master.csv", row.names = FALSE)
+```
+
