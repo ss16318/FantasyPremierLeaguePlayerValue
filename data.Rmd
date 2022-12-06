@@ -10,72 +10,17 @@
 
 
 ```{r, fig.align = 'center'}
-library(tidyverse)
-
-#Note: This is data up to the penultimate gameweek
-
-# Load data
-season16 <- read_csv("Data/FPL16-GW37.csv")
-season17 <- read_csv("Data/FPL17-GW37.csv")
-season18 <- read_csv("Data/FPL18-GW37.csv")
-season19 <- read_csv("Data/FPL19-GW35.csv")
-season20 <- read_csv("Data/FPL20-GW37.csv")
-season21 <- read_csv("Data/FPL21-GW37.csv")
-
-# Dropping cols not shared by all dataframes
-# NB This is due to differences in szn recording and number of GWs
-season16 <- select(season16, -c(GW38Forecast) )
-season17 <- select(season17, -c(ICTIndex,GW38Forecast) )
-season18 <- select(season18, -c(ICTIndex,GW38Forecast))
-season19 <- select(season19, -c(ICTIndex,GW36Forecast))
-season20 <- select(season20, -c(ICTIndex,GW38Forecast))
-season21 <- select(season21, -c(ICTIndex,GW38Forecast))
-
-# Binding the data
-df <- rbind(season16, season17, season18, season19, season20, season21)
-
-# Only selecting raw stats that are relevant (and re-ordering them)
-df <- select( df, c(PositionsList, Team, Cost, TotalPoints, MinutesPlayed, GoalsScored, GoalsScoredPoints, Assists, CleanSheets, CleanSheetPoints, GoalsConceded, GoalsConcededPoints, PenaltiesMissed, OwnGoals, YellowCards, RedCards, Bonus, SelectedByPercent, LastSeasonPoints ))
-
-df <- df %>% 
-   mutate(Cost = Cost / 1000000)            #convert cost to millions
-   filter(df, PositionsList != "GLK")       #not analyzing goalkeepers
-
-
 
 
 ```
 
-```{r, fig.align = 'center'}
 
-library(ggplot2)
-
-ggplot(df, aes(x=Cost, y=TotalPoints)) + 
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE)
-
-```
-
-```{r, fig.align = 'center'}
-
-# We only want to consider players with at least 100 points
-d <- filter(df, TotalPoints > 100)
-
-ggplot(d, aes(x=Cost, y=TotalPoints)) + 
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE)
-
-```
 
 ## Missing value analysis
 
 ```{r, fig.align = 'center'}
 
-# Each player gets 3 points per assists
-d <- d %>% 
-   mutate(AssistPoints = Assists * 3)
 
-#Dealing with minutes played points
 
           
 
