@@ -32,7 +32,6 @@ library(scales)
 library(cowplot)
 library(rvest)
 library(robotstxt)
-library(cdparcoord)
 library(png)
 
 ```
@@ -251,7 +250,46 @@ ridge_data_b %>%
 
 ```
 
+
 ```{r}
+#EF: checking for duplicate player names and positions
+df_2021_check <- df_orig %>%
+  filter(Season == '2021') %>%
+  mutate_at(c('FirstName'), ~replace_na(.,"NAMELESS")) %>%
+  select(Surname, FirstName, PositionsList) %>%
+  unite("player_id", c('Surname', 'FirstName', 'PositionsList'), sep= "_", remove=FALSE) %>%
+  group_by(player_id) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+
+remove(df_2021_check)
+
+df_2021 <- df_orig %>%
+  filter(Season == '2021') %>%
+  mutate_at(c('FirstName'), ~replace_na(.,"NAMELESS")) %>%
+  unite("player_id", c('Surname', 'FirstName', 'PositionsList'), sep= "_", remove=FALSE)
+
+df_2021$player_id[df_2021$player_id == 'Davies_Ben_DEF' & df_2021$Team == 'TOT'] <- 'Davies_Ben_DEF_TOT'
+
+# Top Players at beginning
+top_players_beg <- df_2021 %>%
+  filter(Week == '00') %>%
+  arrange(desc(Cost)) %>%
+  head(7) %>%
+  select(player_id)
+
+df_2021_top_beg <- merge(df_2021, top_players_beg, by="player_id")
+df_2021_top_beg$Week <- as.numeric(df_2021_top_beg$Week)
+df_2021_top_beg$Week <- df_2021_top_beg$Week + 1
+
+pc_graph_2021_beg <- df_2021_top_beg %>%
+  select(Surname, Cost, Week, SelectedByPercent) %>%
+  arrange(Week, Surname)
+
+
+# pc_graph_2021_beg <- fct_reorder(pc_graph_2021_beg$Surname, pc_graph_2021_beg$Cost)
+remove(top_players_beg, df_2021_top_beg)
+
 tp_5_each_team <- df_2021 %>%
   filter(Week == '37') %>%
   rename("team_grp" = "Team") %>%
@@ -432,47 +470,7 @@ ggplot(pos_vals, aes(x=Week, y=Cost, group = player_id, colour=factor(delta37_du
 
 ```
 
-```{r}
-#EF: checking for duplicate player names and positions
-df_2021_check <- df_orig %>%
-  filter(Season == '2021') %>%
-  mutate_at(c('FirstName'), ~replace_na(.,"NAMELESS")) %>%
-  select(Surname, FirstName, PositionsList) %>%
-  unite("player_id", c('Surname', 'FirstName', 'PositionsList'), sep= "_", remove=FALSE) %>%
-  group_by(player_id) %>%
-  summarise(count = n()) %>%
-  arrange(desc(count))
 
-remove(df_2021_check)
-
-df_2021 <- df_orig %>%
-  filter(Season == '2021') %>%
-  mutate_at(c('FirstName'), ~replace_na(.,"NAMELESS")) %>%
-  unite("player_id", c('Surname', 'FirstName', 'PositionsList'), sep= "_", remove=FALSE)
-
-df_2021$player_id[df_2021$player_id == 'Davies_Ben_DEF' & df_2021$Team == 'TOT'] <- 'Davies_Ben_DEF_TOT'
-
-# Top Players at beginning
-top_players_beg <- df_2021 %>%
-  filter(Week == '00') %>%
-  arrange(desc(Cost)) %>%
-  head(7) %>%
-  select(player_id)
-
-df_2021_top_beg <- merge(df_2021, top_players_beg, by="player_id")
-df_2021_top_beg$Week <- as.numeric(df_2021_top_beg$Week)
-df_2021_top_beg$Week <- df_2021_top_beg$Week + 1
-
-pc_graph_2021_beg <- df_2021_top_beg %>%
-  select(Surname, Cost, Week, SelectedByPercent) %>%
-  arrange(Week, Surname)
-
-
-# pc_graph_2021_beg <- fct_reorder(pc_graph_2021_beg$Surname, pc_graph_2021_beg$Cost)
-remove(top_players_beg, df_2021_top_beg)
-
-
-```
 
 ```{r, fig.align = 'center', fig.width=100%}
 g1 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=SelectedByPercent, group = Surname, colour=factor(Surname))) +
