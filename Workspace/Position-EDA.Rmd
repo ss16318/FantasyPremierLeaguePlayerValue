@@ -3,21 +3,25 @@
 ```{r, fig.align = 'center'}
 library(tidyverse)
 library(ggplot2)
+library(ggthemes)
 
 df <- read_csv("https://raw.githubusercontent.com/ss16318/FantasyPremierLeaguePlayerValue/main/Data/main/master.csv")
 
+# Filter for end of Season and Players with more than 74 points
 PointCost <- df[df$Week == 37,]
-d <- filter(PointCost, TotalPoints > 100)
+d <- filter(PointCost, TotalPoints > 74)
+
+write.csv(d, "d3Data.csv", row.names = FALSE)
 
 ggplot(d, aes(x=Cost, y=TotalPoints)) + 
   geom_point(aes(colour = factor(Season))) +
-  geom_smooth(method = "lm", se = FALSE) +
-  ggtitle("Total Points in a Season against Cost (for players with more than 74 points)") +
+  geom_smooth(method = "loess", se = FALSE, color = 'darkmagenta') +
+  ggtitle("Total Points in a Season against Cost with Best Fit Line") +
   xlab("Cost (in Millions)") + 
   ylab("Total Points") +
-  labs(colour = "Season")
-  
-  
+  labs(colour = "Season") +
+  scale_color_colorblind()
+
 
 ```
 
@@ -30,24 +34,30 @@ d <- d %>%
    mutate(PositionsList =factor(PositionsList, levels=c("DEF", "MID", "FWD")))
 
 averagePPC <- mean(d$PointPerCost)
+averagePoints <- mean(d$TotalPoints)
+averageCost <- mean(d$Cost)
 
 p1 <- ggplot(d, aes(x=PositionsList, y=TotalPoints)) + 
-  geom_boxplot(outlier.size=0.9) +
+  geom_boxplot(outlier.size=0.8) +
   xlab("Poistion") + 
-  ylab("Total Points")
+  ylab("Total Points") +
+  geom_hline(aes(yintercept= averagePoints, linetype = "Average Points"), colour= 'blue') +
+  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("blue"))))
 
 p2 <- ggplot(d, aes(x=PositionsList, y=Cost)) + 
-  geom_boxplot(outlier.size=0.9) +
+  geom_boxplot(outlier.size=0.8) +
   xlab("Poistion") + 
-  ylab("Cost")
+  ylab("Cost") +
+  geom_hline(aes(yintercept= averageCost, linetype = "Average Points"), colour= 'purple') +
+  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("purple"))))
 
 
 p3 <- ggplot(d, aes(x=PositionsList, y=PointPerCost)) + 
-  geom_boxplot(outlier.size=0.9) +
+  geom_boxplot(outlier.size=0.8) +
   xlab("Poistion") + 
   ylab("Total Points per Cost") +
   geom_hline(aes(yintercept= averagePPC, linetype = "Average Points per Cost"), colour= 'red') +
-  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("red"))))
+  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("red")))) +
 
  
 p1 + p2 + p3 + guide_area() + plot_layout(ncol = 2, guides = "collect")
@@ -201,4 +211,55 @@ ggplot(d, aes(x=SelectedByPercent, y=PointPerCost)) +
   labs(colour = "Position")
 
 ```
+```{r, fig.align = 'center'}
+d <- d %>% 
+  mutate(AssistPoints = Assists * 3)
+
+def <- d %>% 
+  filter(PositionsList == "DEF") %>%
+  mutate(GoalsScoredPoints = GoalsScored * 6) %>%
+  mutate(CleanSheetPoints = CleanSheets * 4)
+
+def <- def[, c("GoalsScoredPoints", "AssistPoints", "CleanSheetPoints", "Bonus", "TotalPoints", "FirstName", "Surname", "PositionsList")]
+
+mid <- d %>% 
+  filter(PositionsList == "MID") %>%
+  mutate(GoalsScoredPoints = GoalsScored * 5) %>%
+  mutate(CleanSheetPoints = CleanSheets * 1)
+
+mid <- mid[, c("GoalsScoredPoints", "AssistPoints", "CleanSheetPoints", "Bonus", "TotalPoints", "FirstName", "Surname", "PositionsList")]
+
+fwd <- d %>% 
+  filter(PositionsList == "FWD") %>%
+  mutate(GoalsScoredPoints = GoalsScored * 3) %>%
+  mutate(CleanSheetPoints = CleanSheets * 0)
+
+fwd <- fwd[, c("GoalsScoredPoints", "AssistPoints", "CleanSheetPoints", "Bonus", "TotalPoints", "FirstName", "Surname", "PositionsList")]
+
+
+points <- rbind(def, mid, fwd)
+
+```
+
+```{r}
+library(GGally)
+
+
+data <- points %>%                                      
+  arrange(desc(TotalPoints)) %>% 
+  group_by(PositionsList) %>%
+  slice(1:50) %>%
+  ungroup() %>%
+  select(  "GoalsScoredPoints", "AssistPoints",  "CleanSheetPoints", "Bonus", "PositionsList")
+  
+ggparcoord(data = data, columns = 1:4, groupColumn = 5, scale = "uniminmax" , alphaLines = 0.5 , splineFactor = 2) + 
+  ggtitle("Parallel Coordinate Plot of Where Top Performing Players Score Points") + 
+  labs(y = "Univariately Rescaled Feature Value", x = "Point Types")
+
+
+
+```
+
+
+
 
