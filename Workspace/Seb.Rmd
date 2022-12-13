@@ -21,7 +21,7 @@ d <- filter(PointCost, MinutesPlayed/37 >= 45)
 
 # Plot Total Points against Cost
 ggplot(d, aes(x=Cost, y=TotalPoints)) + 
-  geom_point(aes(colour = factor(Season)), alpha = 0.6) +
+  geom_point(aes(colour = factor(Season))) +
   geom_smooth(method = "loess", se = FALSE, color = 'darkmagenta') +
   ggtitle("Total Points in a Season against Cost with Best Fit Line") +
   xlab("Cost (in Millions)") + 
@@ -83,7 +83,6 @@ p1 + p2 + p3 + guide_area() + plot_layout(ncol = 2, guides = "collect")
 ```
 
 ```{r, fig.align = 'center'}
-
 #Selected By % Plot
 ggplot(d, aes(x=SelectedByPercent, y= 100*(..count..)/sum(..count..))) + 
   geom_histogram(binwidth=2) +
@@ -100,7 +99,7 @@ ggplot(d, aes(x=SelectedByPercent, y= 100*(..count..)/sum(..count..))) +
 ```{r, fig.align = 'center'}
 #TRANSFORMING DATA
 
-#Rename to Bonus Points
+#Rename to Bonus
 d <- d %>% rename("BonusPoints" = "Bonus")
 
 #Add Points from assists
@@ -138,7 +137,7 @@ pointCategories <- d %>%
   group_by(PositionsList) %>%
   slice(1:50) %>%
   ungroup() %>%
-  select(  "GoalsScoredPoints", "AssistPoints",  "CleanSheetPoints", "BonusPoints", "PositionsList")
+  select(  "GoalsScoredPoints", "AssistPoints",  "CleanSheetPoints", "BonusPoints", "PositionsList" , 'Surname')
 
 #Parallel Coordinate Plot
 ggparcoord(data = pointCategories, columns = 1:4, groupColumn = 5, scale = "globalminmax" , alphaLines = 0.6 , splineFactor = 4) +
@@ -151,3 +150,4 @@ ggparcoord(data = pointCategories, columns = 1:4, groupColumn = 5, scale = "glob
 
 
 ```
+

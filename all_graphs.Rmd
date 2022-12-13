@@ -1,0 +1,506 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+# this prevents package loading message from appearing in the rendered version of your problem set
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(ggimage)
+library(ggridges)
+library(patchwork)
+library(GGally)
+library(tibble)
+library(dplyr) 
+library(viridis)
+
+library(openintro)
+library(descriptr)
+library(assertable)
+library(gapminder)
+library(stringr)
+library(arrow)
+library(forcats)
+library(scales)
+library(cowplot)
+library(rvest)
+library(robotstxt)
+library(cdparcoord)
+library(png)
+
+```
+
+
+```{r}
+#EF: this is a dataframe of the team name, team full name, and 
+#    end position in 2021-2022 premier league table, and images
+
+Place <- c(5, 14, 13, 9, 18, 3, 12, 16, 17, 8, 2, 1, 6, 11, 20, 15, 4, 19, 7, 10)
+
+Team <- c("ARS", "AVL", "BHA", "BRE", "BUR", "CHE", "CRY", "EVE", "LEE", "LEI", 
+          "LIV", "MCI", "MUN", "NEW", "NOR", "SOU", "TOT", "WAT", "WHU", "WOL")
+
+Team_name_full <- c("ARSENAL", "ASTON VILLA", "BRENTFORD", "BRIGHTON & HOVE ALBION", 
+                    "BURNLEY", "CHELSEA", "CRYSTAL PALACE", "EVERTON", "LEEDS UNITED", 
+                    "LEICESTER CITY", "LIVERPOOL", "MANCHESTER CITY", "MANCHESTER UNITED", 
+                    "NEWCASTLE UNITED", "NORWICH CITY", "SOUTHAMPTON", "TOTTENHAM HOTSPUR", 
+                    "WATFORD", "WEST HAM UNITED", "WOLVERHAMPTON WANDERERS")
+
+# EF: Do Not USE
+# Logo <- list( image_read("emf_images/ARS.png"), image_read("emf_images/AVL.png"),
+#             image_read("emf_images/BHA.png"), image_read("emf_images/BRE.png"), 
+#             image_read("emf_images/BUR.png"), image_read("emf_images/CHE.png"), 
+#             image_read("emf_images/CRY.png"), image_read("emf_images/EVE.png"), 
+#             image_read("emf_images/LEE.png"), image_read("emf_images/LEI.png"), 
+#             image_read("emf_images/LIV.png"), image_read("emf_images/MCI.png"), 
+#             image_read("emf_images/MUN.png"), image_read("emf_images/NEW.png"), 
+#             image_read("emf_images/NOR.png"), image_read("emf_images/SOU.png"), 
+#             image_read("emf_images/TOT.png"), image_read("emf_images/WAT.png"), 
+#             image_read("emf_images/WHU.png"), image_read("emf_images/WOL.png"))
+
+
+Logo <- list.files(path="emf_images", pattern="*.png")
+image = paste0("emf_images", "/", Logo)
+df_2021_team_key <- data.frame(Place, Team_name_full, Team, image)
+```
+
+
+```{r}
+#EF: Need to change link when new dataset uploaded to git *(RC)****************
+df_orig <- read_csv("Data/main/master.csv")
+# df_orig <- read_csv("https://raw.githubusercontent.com/ss16318/FantasyPremierLeaguePlayerValue/main/Data/main/master.csv")
+
+# Filter for end of Season and Players with more than 74 points
+PointCost <- df_orig[df_orig$Week == 37,]
+d <- filter(PointCost, MinutesPlayed/37 >= 45)
+
+#Creates Points per Cost column and adds levels to positions
+d <- d %>% 
+   mutate(PointPerCost = TotalPoints / Cost) %>%
+   mutate(PositionsList =factor(PositionsList, levels=c("DEF", "MID", "FWD")))
+
+#Find averages for TotalPoints, Cost and PointsPerCost
+averagePPC <- mean(d$PointPerCost)
+averagePoints <- mean(d$TotalPoints)
+averageCost <- mean(d$Cost)
+
+#Rename to Bonus Points
+d <- d %>% rename("BonusPoints" = "Bonus")
+
+#Add Points from assists
+d <- d %>% 
+  mutate(AssistPoints = Assists * 3)
+
+#Add Defenders Points from Goals and Clean Sheets
+def <- d %>% 
+  filter(PositionsList == "DEF") %>%
+  mutate(GoalsScoredPoints = GoalsScored * 6) %>%
+  mutate(CleanSheetPoints = CleanSheets * 4)
+
+#Add Midfielder Points from Goals and Clean Sheets
+mid <- d %>% 
+  filter(PositionsList == "MID") %>%
+  mutate(GoalsScoredPoints = GoalsScored * 5) %>%
+  mutate(CleanSheetPoints = CleanSheets * 1)
+
+#Add Striker Points from Goals and Clean Sheets
+fwd <- d %>% 
+  filter(PositionsList == "FWD") %>%
+  mutate(GoalsScoredPoints = GoalsScored * 3) %>%
+  mutate(CleanSheetPoints = CleanSheets * 0)
+
+#Add 
+d <- rbind(def, mid, fwd)
+```
+
+
+```{r, fig.align = 'center', fig.width=100%}
+# Plot Total Points against Cost
+ggplot(d, aes(x=Cost, y=TotalPoints)) + 
+  geom_point(aes(colour = factor(Season))) +
+  geom_smooth(method = "loess", se = FALSE, color = 'darkmagenta') +
+  ggtitle("Total Points in a Season against Cost with Best Fit Line") +
+  xlab("Cost (in Millions)") + 
+  ylab("Total Points") +
+  labs(colour = "Season") +
+  theme_light() +
+  scale_x_continuous(labels = label_number(suffix = "", scale = 1e-6), breaks = seq(0,14000000,1000000)) +
+  scale_color_colorblind() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r, fig.align = 'center', fig.width=100%}
+#Selected By % Plot
+ggplot(d, aes(x=SelectedByPercent, y= 100*(..count..)/sum(..count..))) + 
+  geom_histogram(binwidth=2) +
+  facet_grid(cols = vars(PositionsList)) +
+  ylab("Relative Frequency %")+
+  xlab("Selected By %") +
+  theme_light() +
+  scale_color_colorblind() +
+  ggtitle("NEEDS TITLE") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r, fig.align = 'center', fig.width=100%}
+#Select Top 50 players in each position and the ways they scored points
+pointCategories <- d %>%                                      
+  arrange(desc(TotalPoints)) %>% 
+  group_by(PositionsList) %>%
+  slice(1:50) %>%
+  ungroup() %>%
+  select(  "GoalsScoredPoints", "AssistPoints",  "CleanSheetPoints", "BonusPoints", "PositionsList")
+
+#Parallel Coordinate Plot
+ggparcoord(data = pointCategories, columns = 1:4, groupColumn = 5, scale = "globalminmax" , alphaLines = 0.6 , splineFactor = 4) +
+  ggtitle("How The Top 50 Performing Players Score Points") + 
+  labs(y = "Global MinMax Feature Value", x = "Point Types") +
+  labs(colour = "Position") +
+  theme_light() +
+  scale_color_colorblind() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r, fig.align = 'center', fig.width=100%}
+# NEEDS TITLE
+#Boxplot for Points
+p1 <- ggplot(d, aes(x=PositionsList, y=TotalPoints)) + 
+  geom_boxplot(outlier.size=0.8) +
+  xlab("Position") + 
+  ylab("Total Points") +
+  geom_hline(aes(yintercept= averagePoints, linetype = "Average Points"), colour= 'blue') +
+  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("blue")))) +
+  theme_light() +
+  scale_color_colorblind()
+
+#Boxplot for Cost
+p2 <- ggplot(d, aes(x=PositionsList, y=Cost)) + 
+  geom_boxplot(outlier.size=0.8) +
+  xlab("Position") + 
+  ylab("Cost") +
+  geom_hline(aes(yintercept= averageCost, linetype = "Average Points"), colour= 'deeppink') +
+  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("purple")))) +
+  theme_light() +
+  scale_color_colorblind()
+
+#Boxplot for Points per Cost
+p3 <- ggplot(d, aes(x=PositionsList, y=PointPerCost)) + 
+  geom_boxplot(outlier.size=0.8) +
+  xlab("Position") + 
+  ylab("Total Points per Cost") +
+  geom_hline(aes(yintercept= averagePPC, linetype = "Average Points per Cost"), colour= 'red') +
+  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("red")))) +
+  theme_light() +
+  scale_color_colorblind()
+
+#Adding Plots Together
+p1 + p2 + p3 + guide_area() + plot_layout(ncol = 2, guides = "collect")
+```
+
+```{r}
+# EF: Ridgeplot
+ridge_teams <- df_orig %>%
+  select(Team, Season) %>%
+  distinct() %>%
+  group_by(Team) %>%
+  summarise(count = n()) %>%
+  filter(count == 5) %>%
+  select(Team)
+
+ridge_teams <- merge(ridge_teams, df_2021_team_key, by="Team")
+
+ridge_data <- merge(df_orig, ridge_teams, by="Team")
+ridge_data$Week <- as.numeric(ridge_data$Week)
+  
+ridge_data_a <- ridge_data %>%
+  filter((Week == 37 & Season %in% c(2017, 2018, 2020, 2021)) | 
+         (Week == 35 & Season == 2019)) %>%
+  filter(MinutesPlayed > 0) %>%
+  mutate(avg_min_played = MinutesPlayed / Week)
+
+ridge_data_b <- ridge_data %>%
+  filter((Week == 37 & Season %in% c(2017, 2018, 2020, 2021)) | 
+         (Week == 35 & Season == 2019)) %>%
+  filter(MinutesPlayed > 0) %>%
+  mutate(avg_min_played = MinutesPlayed / Week) %>%
+  filter(avg_min_played >= 45)
+  
+```
+
+```{r, fig.align = 'center', fig.width=100%}
+ridge_data_b %>%
+  ggplot(aes(x = Cost, y = reorder(Team, -Place))) +
+  geom_density_ridges(aes(fill = Team), scale = 3, size = 0.4, rel_min_height = 0.01, show.legend=FALSE) +
+  ggtitle("Final Week Player Cost Distribution of Past 5 Seasons") +
+  scale_x_continuous(limits = c(3000000, 14000000), labels = label_number(suffix = "", scale = 1e-6), breaks = seq(0,14000000,1000000)) +
+  xlab("Player Cost (Millions)") + 
+  ylab("Team") + 
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_viridis(discrete=TRUE)
+
+```
+
+```{r}
+tp_5_each_team <- df_2021 %>%
+  filter(Week == '37') %>%
+  rename("team_grp" = "Team") %>%
+  group_by(team_grp) %>%
+  mutate(prank = rank(-TotalPoints)) %>%
+  filter(prank <= 5) %>%
+  select(player_id)
+
+df_2021_tp_5 <- merge(df_2021, tp_5_each_team, by="player_id")
+
+df_2021_tp_5 <- df_2021_tp_5 %>%
+  select(Surname, Cost, Team, PointsLastRound, Week) %>%
+  filter(Week > 0) %>%
+  group_by(Team) %>%
+  summarise(team_tot_pts = sum(PointsLastRound), team_tot_cost = sum(Cost)) %>%
+  mutate(cost_pts = team_tot_cost / team_tot_pts) %>%
+  mutate(pts_cost = team_tot_pts / team_tot_cost) %>%
+  mutate(sub_group = 'Top 1-5') %>%
+  merge(df_2021_team_key, by="Team") %>%
+  mutate(image = NA)
+
+tp_10_each_team <- df_2021 %>%
+  filter(Week == '37') %>%
+  rename("team_grp" = "Team") %>%
+  group_by(team_grp) %>%
+  mutate(prank = rank(-TotalPoints)) %>%
+  filter(prank > 5 & prank <= 10) %>%
+  select(player_id)
+
+df_2021_tp_10 <- merge(df_2021, tp_10_each_team, by="player_id")
+
+df_2021_tp_10 <- df_2021_tp_10 %>%
+  select(Surname, Cost, Team, PointsLastRound, Week) %>%
+  filter(Week > 0) %>%
+  group_by(Team) %>%
+  summarise(team_tot_pts = sum(PointsLastRound), team_tot_cost = sum(Cost)) %>%
+  mutate(cost_pts = team_tot_cost / team_tot_pts) %>%
+  mutate(pts_cost = team_tot_pts / team_tot_cost) %>%
+  mutate(sub_group = 'Top 6-10') %>%
+  merge(df_2021_team_key, by="Team")
+
+delta_bar <- rbind(df_2021_tp_5, df_2021_tp_10)
+
+remove(tp_5_each_team, tp_10_each_team)
+```
+
+
+```{r, fig.align = 'center', fig.width=100%}
+ggplot(delta_bar, aes(reorder(Team, Place), cost_pts, fill=sub_group)) +
+  geom_bar(position="dodge", stat="identity", width=0.6)+
+  geom_image(aes(image=image, y = cost_pts + 250000), size=.05) +
+  scale_y_continuous(limits = c(0, 5200000), breaks = seq(0,5500000,500000), labels = label_number(suffix = " M", scale = 1e-6)) +
+  xlab(expression(atop("Team Ordered by Final Standings", paste("1st Place" %->% "20th Place")))) +
+  ylab("Season Cost / Season Points") + 
+  ggtitle("Costs Per Point of Top 5 Best Players on Each Team") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(fill="Cost / Points") +
+  theme(axis.text.x = element_text(size = 8, angle=25)) +
+  scale_fill_manual(values = c("Top 1-5" = "#009E73", "Top 6-10" = "#E69F00"))
+
+```
+
+
+```{r, fig.align = 'center', fig.width=100%}
+ggplot(df_2021_tp_5, aes(reorder(Team, Place), cost_pts)) +
+  geom_image(aes(image=image, y = cost_pts + 150000), size=.04) +
+  scale_y_continuous(limits = c(0, 5200000), breaks = seq(0,5500000,500000), labels = label_number(suffix = " M", scale = 1e-6)) +
+  xlab(expression(atop("Team Ordered by Final Standings", paste("1st Place" %->% "20th Place")))) +
+  ylab("Season Cost / Season Points") + 
+  ggtitle("Costs Per Point of Top 5 Best Players on Each Team") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_col(width=0.75) +
+  labs(fill="Cost / Points") +
+  theme(axis.text.x = element_text(size = 8, angle=25))
+
+
+ggplot(df_2021_tp_10, aes(reorder(Team, Place), cost_pts)) +
+  geom_image(aes(image=image, y = cost_pts + 150000), size=.04) +
+  scale_y_continuous(limits = c(0, 5200000), breaks = seq(0,5500000,500000), labels = label_number(suffix = " M", scale = 1e-6)) +
+  xlab(expression(atop("Team Ordered by Final Standings", paste("1st Place" %->% "20th Place")))) +
+  ylab("Season Cost / Season Points") + 
+  ggtitle("Costs Per Point of 5th to 10th Best Players on Each Team") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_col(width=0.75) +
+  labs(fill="Cost / Points") +
+  theme(axis.text.x = element_text(size = 8, angle=25))
+
+```
+
+
+```{r}
+# look at the greatest value change players over the season
+gc_w0 <- df_2021 
+gc_w0$Week <- as.numeric(gc_w0$Week)
+
+gc_w0 <- gc_w0 %>%
+    arrange(player_id, Week) %>%
+    mutate(cost_diff = case_when(
+      Week == 0 ~ 0,
+      Week > 0 ~ (Cost - lag(Cost)))) %>%
+    select(player_id, Week, Cost, PointsLastRound, cost_diff)
+
+gc_w0 <- gc_w0 %>% 
+  group_by(player_id) %>% 
+  mutate(cum_cost_diff = cumsum(cost_diff)) %>%
+  mutate(min_val = min(Cost)) %>%
+  mutate(max_val = max(Cost)) %>%
+  mutate(largest_diff = max_val - min_val) 
+
+wk1_37_dummies <- gc_w0 %>%
+  select(player_id, Week, Cost) %>%
+  filter(Week == 37 | Week == 1) %>%
+  pivot_wider(names_from = Week, values_from = Cost) %>%
+  rename("Wk_1_val" = "1") %>%
+  rename("Wk_37_val" = "37") %>%
+  mutate(wk_1_wk37_diff = Wk_37_val - Wk_1_val) %>%
+  mutate(delta37_dummy = case_when(
+     wk_1_wk37_diff > 0 ~ 'Increase',
+     wk_1_wk37_diff == 0 ~ 'No Change',
+     wk_1_wk37_diff < 0 ~ 'Decrease',)) %>%
+  select(player_id, delta37_dummy)
+
+wk1_37_dummies$delta37_dummy <- factor(wk1_37_dummies$delta37_dummy, 
+                                     levels = c("Increase", "No Change", "Decrease"))
+
+neg_players <- gc_w0 %>% 
+  filter(cum_cost_diff <= -300000) %>%
+  select(player_id) %>%
+  distinct()
+
+neg_vals <- merge(gc_w0, neg_players, by="player_id", all = FALSE)
+neg_vals <- merge(neg_vals, wk1_37_dummies, by="player_id")
+neg_vals <- filter(neg_vals, !is.na(neg_vals$delta37_dummy))
+
+pos_players <- gc_w0 %>% 
+  filter(cum_cost_diff >= 300000) %>%
+  select(player_id) %>%
+  distinct()
+
+pos_vals <- merge(gc_w0, pos_players, by="player_id", all = FALSE)
+pos_vals <- merge(pos_vals, wk1_37_dummies, by="player_id")
+pos_vals <- filter(pos_vals, !is.na(pos_vals$delta37_dummy))
+
+```
+
+
+```{r, fig.align = 'center', fig.width=100%}
+ggplot(neg_vals, aes(x=Week, y=Cost, group = player_id, colour=factor(delta37_dummy))) +
+  scale_y_continuous(limits = c(3500000, 13500000), breaks = seq(3500000,20000000,500000), labels = label_number(suffix = " M", scale = 1e-6)) +
+  scale_x_continuous(breaks = seq(-0,37,1)) +
+  geom_line(size=0.3, alpha=0.75) +
+  geom_point(size=0.3, alpha = 0.75, stroke = 0) +
+  theme_light() +
+  labs(colour = "Weeks 1 vs 37") +
+  ggtitle("Players Experiencing 300K or Greater \n Cumulitive Cost Decrease in 2021") +
+  ylab("Cost in Week (Millions)") + xlab("Game Week") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_colour_manual(values = c("Increase" = "#009E73", "No Change" = "#CC79A7", "Decrease" = "#E69F00")) +
+  theme(axis.text.x = element_text(size = 7, angle=45))
+
+ggplot(pos_vals, aes(x=Week, y=Cost, group = player_id, colour=factor(delta37_dummy))) +
+  scale_y_continuous(limits = c(3500000, 13500000), breaks = seq(3500000,20000000,500000), labels = label_number(suffix = "", scale = 1e-6)) +
+  scale_x_continuous(breaks = seq(0,37,1)) +
+  geom_line(size=0.3, alpha=0.75) +
+  geom_point(size=0.3, alpha = 0.75, stroke = 0) +
+  theme_light() +
+  labs(colour = "Weeks 1 vs 37") +
+  ggtitle("Players Experiencing 300K or Greater \n Cumulitive Cost Increase in 2021") +
+  ylab("Cost in Week (Millions)") + xlab("Game Week") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_colour_manual(values = c("Increase" = "#009E73", "No Change" = "#CC79A7", "Decrease" = "#E69F00")) +
+  theme(axis.text.x = element_text(size = 7, angle=45))
+
+# https://rdrr.io/cran/ggthemes/man/colorblind.html
+
+```
+
+```{r}
+#EF: checking for duplicate player names and positions
+df_2021_check <- df_orig %>%
+  filter(Season == '2021') %>%
+  mutate_at(c('FirstName'), ~replace_na(.,"NAMELESS")) %>%
+  select(Surname, FirstName, PositionsList) %>%
+  unite("player_id", c('Surname', 'FirstName', 'PositionsList'), sep= "_", remove=FALSE) %>%
+  group_by(player_id) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+
+remove(df_2021_check)
+
+df_2021 <- df_orig %>%
+  filter(Season == '2021') %>%
+  mutate_at(c('FirstName'), ~replace_na(.,"NAMELESS")) %>%
+  unite("player_id", c('Surname', 'FirstName', 'PositionsList'), sep= "_", remove=FALSE)
+
+df_2021$player_id[df_2021$player_id == 'Davies_Ben_DEF' & df_2021$Team == 'TOT'] <- 'Davies_Ben_DEF_TOT'
+
+# Top Players at beginning
+top_players_beg <- df_2021 %>%
+  filter(Week == '00') %>%
+  arrange(desc(Cost)) %>%
+  head(7) %>%
+  select(player_id)
+
+df_2021_top_beg <- merge(df_2021, top_players_beg, by="player_id")
+df_2021_top_beg$Week <- as.numeric(df_2021_top_beg$Week)
+df_2021_top_beg$Week <- df_2021_top_beg$Week + 1
+
+pc_graph_2021_beg <- df_2021_top_beg %>%
+  select(Surname, Cost, Week, SelectedByPercent) %>%
+  arrange(Week, Surname)
+
+
+# pc_graph_2021_beg <- fct_reorder(pc_graph_2021_beg$Surname, pc_graph_2021_beg$Cost)
+remove(top_players_beg, df_2021_top_beg)
+
+
+```
+
+```{r, fig.align = 'center', fig.width=100%}
+g1 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=SelectedByPercent, group = Surname, colour=factor(Surname))) +
+  scale_y_continuous(limits = c(0,75), breaks = seq(0,100,10), labels = label_number(suffix = "%")) +
+  scale_x_continuous(breaks = seq(0,38,1)) +
+  geom_line() +
+  geom_point(size=1.5, alpha = 0.75, stroke = 0) +
+  labs(colour = "Player") +
+  ylab("PercentageBy") + xlab("Game Week") +
+  theme_light() +
+  theme(axis.text.x = element_text(size = 7, angle=45)) +
+  scale_colour_colorblind() +
+  ggtitle("Highest Cost Players of 2021 Season") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+g2 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=Cost, group = Surname, colour=factor(Surname))) +
+  scale_y_continuous(limits = c(11400000, 13300000), breaks = seq(11500000,13500000,500000), labels = label_number(suffix = "", scale = 1e-6)) +
+  scale_x_continuous(breaks = seq(0,38,1)) +
+  geom_line() +
+  geom_point(size=1.5, alpha = 0.75, stroke = 0) +
+  labs(colour = "Player") +
+  ylab("Cost") + xlab("Game Week") +
+  theme_light() +
+  theme(axis.text.x = element_text(size = 7, angle=45)) +
+  scale_colour_colorblind()
+
+plot_grid(g1, g2, ncol = 1)
+
+```
+
+
