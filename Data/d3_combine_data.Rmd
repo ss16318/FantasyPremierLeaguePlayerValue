@@ -8,20 +8,25 @@ library(tidyverse)
 
 df <- read_csv("https://raw.githubusercontent.com/ss16318/FantasyPremierLeaguePlayerValue/main/Data/main/master.csv")
 
-# Filter for end of Season and Players with more than 74 points
-PointCost <- df[df$Week == 37,]
-d <- filter(PointCost, MinutesPlayed/37 >= 45)
 
-# Plot Total Points against Cost
-ggplot(d, aes(x=Cost, y=TotalPoints)) + 
-  geom_point(aes(colour = factor(Season))) +
-  geom_smooth(method = "loess", se = FALSE, color = 'darkmagenta') +
-  ggtitle("Total Points in a Season against Cost with Best Fit Line") +
-  xlab("Cost (in Millions)") + 
-  ylab("Total Points") +
-  labs(colour = "Season") +
-  theme_light() +
-  scale_color_colorblind()
+d3Data <- df %>%
+  filter(Week == '37') %>%
+  filter(MinutesPlayed >= 45*37) %>%
+  mutate_at(c('FirstName'), ~replace_na(.,"NAMELESS")) %>%
+  unite("player_id", c('Surname', 'FirstName', 'PositionsList'), sep= "_", remove=FALSE)
+
+d3Data$player_id[d3Data$player_id == 'Davies_Ben_DEF' & d3Data$Team == 'TOT'] <- 'Davies_Ben_DEF_TOT'
+
+d3Data <- d3Data %>%
+  select("player_id", "FirstName", "Surname", "PositionsList", "Team", "Cost", "TotalPoints")
+
+write.csv(d3Data, "D3Data.csv", row.names = FALSE)
+
+
+
+```
+
+write.csv(df_main, "Data/main/master.csv", row.names = FALSE)
 
 
 ```

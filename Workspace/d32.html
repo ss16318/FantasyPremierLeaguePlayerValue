@@ -18,8 +18,11 @@
       <h3>Title </h3>
       <p>Some text</p>
       
+      <input type="radio" name="Position" value="All" checked="true">No Position Filter
+      <input type="radio" name="Position" value="Def">Defenders
+      <input type="radio" name="Position" value="Mid">Midfielders
+      <input type="radio" name="Position" value="Fwd">Forwards
       
-      <input type="checkbox" id="Position"> Defenders Only
       
     </div>
     <script type="text/javascript">
@@ -102,16 +105,17 @@
           .attr("r", 2)
           .attr("fill", "black")
           .attr("id" , d => d.PositionsList)
+          .classed("Pos" , d => d.PositionsList)
           .on("mouseover", function(event, d) {
-            var xcoord = d3.select(event.currentTarget).attr("cx") + 5
-            var ycoord = d3.select(event.currentTarget).attr("cy") - 5
+            //var xcoord = d3.select(event.currentTarget).attr("cx") + 5
+            //var ycoord = d3.select(event.currentTarget).attr("cy") - 5
             svg.select("g#plot")
             .append("text")
             .attr("id", "tooltip")
-            .attr("x", xcoord)
-            .attr("y", ycoord)
-            .style('fill', 'Red')
-            .text(d.FirstName + " " + d.Surname + " (" + d.Season + " Season)")
+            .attr("x", 10)
+            .attr("y", 10)
+            .style('fill', 'Black')
+            .text( "Name: " + d.Surname + " (" + d.Season + " Season)")
             
             
           })
@@ -158,20 +162,68 @@
           .attr("y", innerHeight / 2)
           .attr("text-anchor", "middle")
           .text("Total Points");
-          
-  			d3.select("Positions").on("change",update);
-  			update();
-  			
-  			
-  			function update(){
-  				if(d3.select("#Positions").property("checked")){
-  					newData = data.filter(function(d,i){return d % 2 == 0;});
-  				} else {
-  					newData = data;			
-  				}	
-
         
+        // Radio Button Interactivity
+        d3.selectAll("input")
+          .on("click", function(event) { 
+              
+              var Position = event.currentTarget.value; 
+              if (Position == "Def") {
+                    
+              // update cx value of circles
+                  svg.selectAll("circle#DEF")
+                    .attr("fill", 'red')
+                    .attr("r", 2.5)
+                    
+                  svg.selectAll("circle#MID")
+                    .attr("fill", 'black')
+                    .attr("r", 2)
 
+                  svg.selectAll("circle#FWD")
+                    .attr("fill", 'black')
+                    .attr("r", 2)
+              }
+              
+              else if (Position == "Mid") {
+                    
+              // update cx value of circles
+                  svg.selectAll("circle#MID")
+                    .attr("fill", 'red')
+                    .attr("r", 2.5)
+
+                  svg.selectAll("circle#DEF")
+                    .attr("fill", 'black')
+                    .attr("r", 2)
+                    
+                  svg.selectAll("circle#FWD")
+                    .attr("fill", 'black')
+                    .attr("r", 2)
+              }
+              
+              else if (Position == "Fwd") {
+                    
+              // update cx value of circles
+                  svg.selectAll("circle#FWD")
+                    .attr("fill", 'red')
+                    .attr("r", 2.5)
+                  
+                  svg.selectAll("circle#DEF")
+                    .attr("fill", 'black')
+                    .attr("r", 2)
+                  
+                  svg.selectAll("circle#MID")
+                    .attr("fill", 'black')
+                    .attr("r", 2)
+              }
+              
+              else{
+                svg.selectAll("circle")
+                    .attr("fill", 'black')
+                    .attr("r", 2)
+              };
+                             
+
+          })
                     
         })
           .catch(function(error){
