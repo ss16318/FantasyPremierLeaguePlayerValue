@@ -10,5 +10,15 @@ sources
 cleaning-transformation
 missing-value-analysis
 results
+player-value-using-total-points-cost
+filtering-out-bench-players
+vizualizing-the-problem
+player-value-by-position
+key-indicators-of-player-value-by-position
+player-value-by-team
+player-value-over-time
+predicting-when-players-score-the-most-points
+can-we-buy-low-sell-high
+correlation-between-cost-selected-by-percentage
 interactive-component
 conclusion

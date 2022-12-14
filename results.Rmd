@@ -112,7 +112,15 @@ image = paste0("Data/emf_images", "/", Logo)
 df_2021_team_key <- data.frame(Place, Team_name_full, Team, image)
 ```
 
-Plot 1
+
+## Player Value Using Total Points & Cost
+
+The first way we approached the task of determining whether a soccer player is overvalued or undervalued was by looking at how many fantasy points a soccer player received in a season, how much the players cost and the ratio of the two. In our analysis, we regard undervalued soccer players as having high total points in a season and a low cost. Conversely, we define overvalued soccer players as having low total points in a season compared to their price. 
+
+### Filtering Out Bench Players
+
+Before we get started with this analysis, it is important to highlight the fact that we filtered out players who average less than 45 minutes of play time per game. We made this cut because we only wanted to consider players who are on the pitch for more than half of the game on average (a soccer match lasts 90 minutes). In the plot below, we see can see where this cutoff. While it appears that we are filtering out most of soccer players in the league, we want to emphasize that the players we are cutting have little value for our analysis because if they are averaging less than 45 minutes of game time, they are most certainly bench players or injured players. These type of players be of much value because they simply do not spend enough time playing on the pitch, which justifies our choice to cut them from the analysis. 
+
 ```{r, fig.align = 'center'}
 # Plotting Minutes Played
 df_orig2 = df_orig
@@ -132,7 +140,7 @@ player_histogram <- df_orig2 %>%
 ggplot(player_histogram, aes(avg_min_played)) +
   geom_histogram(binwidth = 1 ) + 
   geom_vline(xintercept = 45, colour="blue", linetype = "longdash") +
-  annotate("text", x=63, y=650, label="Minimum Average Minutes Played", angle=0) +
+  annotate("text", x=64, y=650, label="Minimum Average Minutes Played", angle=0) +
   scale_x_continuous(breaks = seq(0, 100, by=5)) +
   ggtitle("Player Count over Average Minutes Played") +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -142,11 +150,13 @@ ggplot(player_histogram, aes(avg_min_played)) +
   scale_color_colorblind()
 ```
 
+### Vizualizing The Problem
 
+To understand relationship between the total points scored in a season and the soccer player cost, we have produced a scatter plot of the two variables. As can be seen from the graph, there is a positive correlation between total points and soccer player cost. This is expected as soccer players who score more points are more valuable, hence their cost should increase. However, there are large deviations from the correlation shown in the best fit line. If a soccer player lies above the best fit line, it shows that they have a high points per cost output and consequently are undervalued. Likewise, if a player lies below the best fit line, they have a low points per cost output and are overvalued. Therefore, moving forward our analysis will investigate if there are patterns which lead to players being above or below this best fit line. 
 
-As can be seen from the graph, there is a positive correlation between total points and soccer player cost. This is expected as soccer players who score more points are more valuable, hence their cost should increase. However, there are large deviations from the correlation shown in the best fit line. If a soccer player lies above the best fit line, it shows that they have a high points per cost output and consequently are undervalued. Likewise, if a player lies below the best fit line, they have a low points per cost output and are overvalued. Therefore, moving forward our analysis will investigate if there are patterns which lead to players being above or below this best fit line. 
+In the graph, there is no clear trend showing that the number of points a player scores in a season depends on the year. In other words, in further analysis we may assume that soccer player performance statistics are time-independent. Further, it must be noted that the 2019 analysis has been excluded from the plot as the final week of the season was missing from the data source (as discussed in the missing data analysis).  
 
-In the graph, there is no clear trend showing that the number of points a player scores in a season depends on the year. In other words, in further analysis we may assume that player stats are time-independent. Further, it must be noted that the 2019 analysis has been excluded from the plot as the final week of the season was missing from the data source (as discussed in the missing data analysis).  
+A final point to add about the graph is the fact that the best fit line, calculated using a loess smoothing, shows the gradient is steeper before £6 million and shallower after. This indicates that there could be an element of diminishing reuturns of value when choosing more expensive soccer players. 
 
 ```{r, fig.align = 'center'}
 # Plot Total Points against Cost
@@ -163,50 +173,11 @@ ggplot(d, aes(x=Cost, y=TotalPoints)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
+### Player Value By Position
 
-Selected By Percentage describes the proportion of FPL users that have selected a certain soccer player in their team; for example, if the Selected By Percentage is 10% for soccer player X, this means that 10% of FPL users have chosen soccer player X for their team. To illustrate why this statistic is important, lets now assume player X has a Selected By Percentage of 95%. Whenever soccer player X plays, 95% of FPL players will receive the points player X scores. This reduces the value of picking player X in your team because whenever player X scores points, 95% of FPL players will benefit from these points. Therefore, a useful strategy to implement when building an FPL team is to try to choose soccer players with a low Selected By Percentage because if these soccer players score a lot of points, fewer FPL users will benefit from these points. As can be seen in the relative frequency histogram, most soccer players have a Selected By Percentage of less than 20%, which is low. Therefore, in future analysis we do not have to worry about players having a high Selected By Percentage, which would reduce their value. 
+Taking a more granular perspective, we divided the players into their 3 position categories: defenders (DEF), midfielders (MID) and forwards (FWD). We then investigated how the total points, player cost and ratio of the two varied by position. 
 
-Another to note in this graph is the fact that the majority of soccer players are defenders and midfielders, not forwards. This difference can be explained with the knowledge that a typical soccer lineup is 4-4-2, which means the team fields 4 defenders, 4 midfielders and 2 forwards. Hence, we would expect there to be more defenders and midfielders than forwards in the dataset, as soccer lineups use more defenders and midfielders. 
-
-```{r, fig.align = 'center'}
-#Selected By % Plot
-ggplot(d, aes(x=SelectedByPercent, y= 100*(..count..)/sum(..count..))) + 
-  geom_histogram(binwidth=2) +
-  facet_grid(cols = vars(PositionsList)) +
-  ylab("Relative Frequency %")+
-  xlab("Selected By %") +
-  theme_light() +
-  scale_color_colorblind() +
-  ggtitle("Relavtive Frequency over Selected-By Percentage") +
-  theme(plot.title = element_text(hjust = 0.5))
-```
-
-
-In the parallel coordinates plot, we see that there are 3 distinct clusters for how soccer players score points and these clusters follow position categories. With defenders, we see that they score few points from goals and assists, but a lot of points from having clean sheets (a clean sheet occurs when a team does not concede a goal during a game). Looking at midfielders and forwards, we see that most of their points come from goals and assists. Moreover, in terms of clean sheets for midfielders, they get relatively few and for forwards they get zero points from clean sheets (which is explained as forwards cannot score points from clean sheets). Focusing on bonus points, we have no evidence suggesting that certain positions score more bonus points than others. 
-
-An interesting point to note is that the soccer players with the most points from goals scored are midfielders, differing from the expectation that forwards score the most points from goals. One explanation for this could be that when a forward scores a goal they receive 4 points, while midfielders receive 5. However, deeper analysis reveals that these midfield players are Salah, Mane and Son. It could be argued that these soccer players should be classified as forwards because they sometimes play the striker position. Hence, one could argue that these top scoring players in terms of points from goals occur because the players are misclassified as midfielders rather than strikers and therefore receive 5 points per goal rather than 4. This leads to the conclusion that a strategy to pick undervalued players is to pick players like Salah, Mane and Son who play as wingers/strikers but are classified as midfielders in the game.
-
-```{r, fig.align = 'center'}
-#Select Top 50 players in each position and the ways they scored points
-pointCategories <- d %>%                                      
-  arrange(desc(TotalPoints)) %>% 
-  group_by(PositionsList) %>%
-  slice(1:50) %>%
-  ungroup() %>%
-  select(  "GoalsScoredPoints", "AssistPoints",  "CleanSheetPoints", "BonusPoints", "PositionsList")
-
-#Parallel Coordinate Plot
-ggparcoord(data = pointCategories, columns = 1:4, groupColumn = 5, scale = "globalminmax" , alphaLines = 0.6 , splineFactor = 4) +
-  ggtitle("How The Top 50 Performing Players Score Points") + 
-  labs(y = "Global MinMax Feature Value", x = "Point Types") +
-  labs(colour = "Position") +
-  theme_light() +
-  scale_color_colorblind() +
-  theme(plot.title = element_text(hjust = 0.5))
-```
-
-
-In the next graph, we see boxplots of total points, cost and points per cost for each position (defenders, midfielders and forwards). In the boxplot of total points we see that forwards generally score the most points and defenders score the least, indicating that forwards are the most valuable and defenders the least. However, when looking at the cost boxplot, we see that defenders cost the least and forwards cost the most, suggesting that defenders could have the best value for money. In the third boxplot, we divide the total points by cost and find that these two opposing effects cancel out as the median points per cost is roughly 18 points per million (£). 
+In the next graph, we see boxplots of total points, cost and points per cost for each position. In the boxplot of total points we see that forwards generally score the most points and defenders score the least, indicating that forwards are the most valuable and defenders the least. However, when looking at the cost boxplot, we see that defenders cost the least and forwards cost the most, suggesting that defenders could have the best value for money. In the third boxplot, we divide the total points by cost and find that these two opposing effects essentially cancel out as the median points per cost is roughly 18 points per million of pounds. 
 
 Interestingly, we also notice that the variation of points per cost is largest for defenders and smallest for forwards. This implies that when choosing forwards, there is a smaller risk of the soccer player being overvalued and a smaller reward for the player being undervalued, while the reverse is true for defenders who have a larger risk and larger reward.
 ```{r, fig.align = 'center'}
@@ -222,21 +193,21 @@ p1 <- ggplot(d, aes(x=PositionsList, y=TotalPoints)) +
   scale_color_colorblind()
 
 #Boxplot for Cost
-p2 <- ggplot(d, aes(x=PositionsList, y=Cost)) + 
+p2 <- ggplot(d, aes(x=PositionsList, y=Cost/1000000)) + 
   geom_boxplot(outlier.size=0.8) +
   xlab("Position") + 
   ylab("Cost") +
-  geom_hline(aes(yintercept= averageCost, linetype = "Average Points"), colour= 'deeppink') +
+  geom_hline(aes(yintercept= averageCost/1000000, linetype = "Average Points"), colour= 'deeppink') +
   scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("purple")))) +
   theme_light() +
   scale_color_colorblind()
 
 #Boxplot for Points per Cost
-p3 <- ggplot(d, aes(x=PositionsList, y=PointPerCost)) + 
+p3 <- ggplot(d, aes(x=PositionsList, y=PointPerCost*1000000)) + 
   geom_boxplot(outlier.size=0.8) +
   xlab("Position") + 
   ylab("Total Points per Cost") +
-  geom_hline(aes(yintercept= averagePPC, linetype = "Average Points per Cost"), colour= 'red') +
+  geom_hline(aes(yintercept= averagePPC*1000000, linetype = "Average Points per Cost"), colour= 'red') +
   scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("red")))) +
   theme_light() +
   scale_color_colorblind()
@@ -246,17 +217,67 @@ p1 + p2 + p3 + guide_area() + plot_layout(ncol = 2, guides = "collect") + plot_a
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-In recent soccer history, the premier league has been dominated by a group of teams referred to as “The Big Six”, or Manchester City, Liverpool, Chelsea, Totettenham, Arsenal, and Manchester United. These teams all have global name recognition, with millions of fans around the world, leading to huge payroll budgets. According to The Athletic, Manchester City will spend £430 million in the 2022-2023 season paying its players, followed by Chelsea (£343), Manchester United (£323 mn), Liverpool (£314), Arsenal (£244), and Tottenham (£205). Meanwhile, the bottom tier teams’ payroll budgets tend to hover between £10 to £50. With such market power to win talent, these teams use their deep pockets to stay at the top of the leaderboard.
 
-Unsurprisingly, the best players are concentrated on these six teams. Given “Cost” in fantasy football is driven by performance, and how many users select an athlete for their team, it’s no surprise that the highest “Cost” players in fantasy soccer are concentrated within the “Big Six” teams.
+#### Key Indicators of Player Value By Position
 
-In the ridge graph above, we plotted the distribution of player fantasy “Cost” in the last week of the 2017 - 2021 seasons, because “Cost” in the last week reflects the player’s performance over the course of the entire season. For clarity, we ordered the teams in the ridge graph by their record at the end of the 2021 season, with MCI finishing in first, and BUR finishing at the bottom. An important feature of the English Premier League is that the worst three teams are kicked out at the end of the season. While the top teams are competing to win the league, the bottom teams are fighting to avoid being demoted. For consistency, we chose to include only the teams which played in the league every year between 2017 and 2021.
+**How Different Players Score Points**
 
-What we see in the graph is reflective of reality, that the soccer players on the bottom of the bottom teams are mostly concentrated around a mean of 4 to 5 million, but as you climb up the board, the mean shifts to between 5 and 6 million, and the tails get longer and longer. 
+From our analysis so far, we have found that the median point per cost does not vary much across position. We have also found that forwards are less likely to be undervalued but also less likely to be overvalues, while it is the opposite for defenders. With this in mind, our next question looks to identify what traits one should look for when determining the value of defenders, midfielders and forwards. 
 
-Overall, we see that there is a clear association between teams with higher records and fantasy “Cost” of players on those teams. Given the winning teams are those that score more goals than their opponents, it’s not surprising that fantasy points, and thus “Cost” are concentrated on those teams. 
+In the parallel coordinates plot, we see that there are 3 distinct clusters for how soccer players score points and these clusters follow position categories. With defenders, we see that they score few points from goals and assists, but a lot of points from having clean sheets (a clean sheet occurs when a team does not concede a goal during a game). Looking at midfielders and forwards, we see that most of their points come from goals and assists. Moreover, in terms of clean sheets for midfielders, they get relatively few and for forwards they get zero points from clean sheets (which is explained as forwards cannot score points from clean sheets). Focusing on bonus points, we have no evidence suggesting that certain positions score more bonus points than others. This leads us to the conclusion that it is best to evaluate defenders based on clean sheets, while we should judge midfielders and forwards based on goals and assists. 
 
-https://theathletic.com/3476123/2022/08/10/premier-league-wages-growth-tax-top-earners/
+An interesting point to note is that the soccer players with the most points from goals scored are midfielders, differing from the expectation that forwards score the most points from goals. One explanation for this could be that when a forward scores a goal they receive 4 points, while midfielders receive 5. However, deeper analysis reveals that these midfield players are Salah, Mane and Son. It could be argued that these soccer players should be classified as forwards because they sometimes play the striker position. Hence, one could conclude that these top scoring players in terms of points from goals occur because the players are misclassified as midfielders rather than strikers and therefore receive 5 points per goal rather than 4. This indicates that a strategy to pick undervalued players is to pick players like Salah, Mane and Son who play as wingers/strikers but are classified as midfielders in the FPL game.
+
+```{r, fig.align = 'center'}
+#Select Top 50 players in each position and the ways they scored points
+pointCategories <- d %>%                                      
+  arrange(desc(TotalPoints)) %>% 
+  group_by(PositionsList) %>%
+  slice(1:50) %>%
+  ungroup() %>%
+  select(  "GoalsScoredPoints", "AssistPoints",  "CleanSheetPoints", "BonusPoints", "PositionsList")
+
+#Parallel Coordinate Plot
+ggparcoord(data = pointCategories, columns = 1:4, groupColumn = 5, scale = "globalminmax" , alphaLines = 0.6 , splineFactor = 4) +
+  ggtitle("How The Top 50 Performing Players in Each Position Score Points") + 
+  labs(y = "Global MinMax Feature Value", x = "Point Types") +
+  labs(colour = "Position") +
+  theme_light() +
+  scale_color_colorblind() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+**Why Selected By Percentage is Important **
+
+Selected By Percentage describes the proportion of FPL users that have selected a certain soccer player in their team. For example, if the Selected By Percentage is 10% for soccer player X, this means that 10% of FPL users have chosen soccer player X for their team. To illustrate why this statistic is important, lets now assume player X has a Selected By Percentage of 95%. Whenever soccer player X plays, 95% of FPL players will receive the points player X scores. This reduces the value of picking player X in your team because whenever player X scores points, 95% of FPL players will benefit from these points. Therefore, a useful strategy to implement when building an FPL team is to try to choose soccer players with a low Selected By Percentage because if these soccer players score a lot of points, fewer FPL users will benefit from these points. 
+
+As can be seen in the relative frequency histogram faceted by position, most soccer players have a Selected By Percentage of less than 20%, which is low. Therefore, in future analysis we do not have to worry about players having a high Selected By Percentage, which would reduce their value. 
+
+Another thing to note in this graph is the fact that the majority of soccer players are defenders and midfielders, not forwards. This difference can be explained with the knowledge that a typical soccer lineup is 4-4-2, which means the team fields 4 defenders, 4 midfielders and 2 forwards. Hence, we would expect there to be more defenders and midfielders than forwards in the dataset, as soccer lineups use more defenders and midfielders. 
+
+```{r, fig.align = 'center'}
+#Selected By % Plot
+ggplot(d, aes(x=SelectedByPercent, y= 100*(..count..)/sum(..count..))) + 
+  geom_histogram(binwidth=2) +
+  facet_grid(cols = vars(PositionsList)) +
+  ylab("Relative Frequency %")+
+  xlab("Selected By %") +
+  theme_light() +
+  scale_color_colorblind() +
+  ggtitle("Relavtive Frequency against Selected By Percentage") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+
+### Player Value By Team
+
+In recent soccer history, the premier league has been dominated by a group of teams referred to as “The Big Six”. The teams in "The Big Six" are Manchester City (MCI), Liverpool (LIV), Chelsea (CHE), Tottenham (TOT), Arsenal (ARS), and Manchester United (MUN).
+
+These teams all have global name recognition, with millions of fans around the world, leading to huge payroll budgets. According to The Athletic, Manchester City will spend £430 million in the 2022-2023 season paying its players, followed by Chelsea (£343 million), Manchester United (£323 million), Liverpool (£314 million), Arsenal (£244 million), and Tottenham (£205 million). Meanwhile, the bottom tier teams’ payroll budgets tend to hover between £10 - £50 million. With such market power to attract the best soccer talent, these teams use their deep pockets to stay at the top of the leaderboard.
+
+Unsurprisingly, the best players are concentrated on these six teams. Given Cost in FPL is driven by performance, it’s no surprise that the highest Cost players in the FPL game are concentrated within the “Big Six” teams.
 
 ```{r}
 # EF: Ridgeplot
@@ -301,6 +322,16 @@ ridge_data_b %>%
   scale_fill_viridis(discrete=TRUE)
 
 ```
+
+
+In the ridge graph above, we plotted the distribution of player fantasy “Cost” in the last week of the 2017 - 2021 seasons, because “Cost” in the last week reflects the player’s performance over the course of the entire season. For clarity, we ordered the teams in the ridge graph by their record at the end of the 2021 season, with MCI finishing in first, and BUR finishing at the bottom. An important feature of the English Premier League is that the worst three teams are kicked out at the end of the season. While the top teams are competing to win the league, the bottom teams are fighting to avoid being demoted. For consistency, we chose to include only the teams which played in the league every year between 2017 and 2021.
+
+What we see in the graph is reflective of reality, that the soccer players on the bottom of the bottom teams are mostly concentrated around a mean of 4 to 5 million, but as you climb up the board, the mean shifts to between 5 and 6 million, and the tails get longer and longer. 
+
+Overall, we see that there is a clear association between teams with higher records and fantasy “Cost” of players on those teams. Given the winning teams are those that score more goals than their opponents, it’s not surprising that fantasy points, and thus “Cost” are concentrated on those teams. 
+
+https://theathletic.com/3476123/2022/08/10/premier-league-wages-growth-tax-top-earners/
+
 
 
 ```{r}
@@ -460,6 +491,28 @@ pos_vals <- filter(pos_vals, !is.na(pos_vals$delta37_dummy))
 
 ```
 
+
+## Player Value over Time
+
+
+### Predicting When Players Score The Most Points
+```{r, fig.align = 'center'}
+
+df_2021 <- df_2021 %>%
+  arrange(TotalPoints)
+
+ggplot(df_2021, aes(Week, player_id)) +
+  geom_tile(aes(fill = PointsLastRound)) +
+  ylab("Players") +
+  labs(fill = "Points that Week") +
+  scale_fill_gradient(low = "white", high = "blue" , limits=c(0,10))+
+  theme_classic() +
+  theme(axis.text.y=element_blank())
+
+```
+
+
+### Can We Buy Low & Sell High? 
 As discussed earlier, the strategy in winning fantasy soccer lies in being able to pick the differential, or finding the low “Cost” players which provide the highest number of points. In trying to identify these bargain players, we wanted to see which players over the course of the season had their prices go up the most, and conversely, those whose prices went down the most. 
 
 In all, there was far less movement in player “Cost” than anticipated. For the past three seasons, the top 10 highest “Cost” players at the beginning of the season were also the top 10 highest “Cost” players at the end of the season. Additionally, we found that about 75% of players have “Costs” which vary less than +/- 200,000 over the course of the entire season. As such, we decided to graph the “Costs” of players over the 2021 season whose price went up or down by 300,000 or more. 
@@ -470,11 +523,6 @@ For comparison sake, we colored the lines based on whether the player’s Week 3
 
 In our view, the rising “Costs” for a player signals that they were previously undervalued, or that the “Cost / Points” ratio was off relative to other players, and required correction. As such, picking a player on the upswing, at their lowest “Cost” point during the season, is directly equivalent to picking the player when they are most undervalued. Like stocks, we want to get in at the lowest point, and ride it to the top, which translates to the user theoretically benefiting from a lower than market rate “Cost / Points” ratio until the soccer player’s “Cost” peaks.
 
-What the graph above shows, is that the players which experienced large negative down valuations, pretty much all did so in Week 1, and ended up having an upward trajectory afterwards. Stated otherwise, pretty much every soccer player that produces fewer than expected points in Week 1 goes on fire sale.
-
-On the other hand, the direct opposite was true among players which experienced a cumulative “Cost” increase of 300,000 or more from their original pricing at any point during the season. On the second graph, we see a very similar large shift in week 1 as fantasy users correct for the first week of games. However, an overwhelming majority of these players were valued lower in Week 37 than they were in Week 1. In other words, they were most overvalued in Week 1 and ultimately declined afterwards. 
-
-In all we can confidently conclude that players who experience a large drop in “Cost” in Week 1 are almost certainly undervalued, while those experiencing a large increase in “Cost” are almost certainly overvalued. While it may seem unconventional, we thus recommend users go after the players with the largest “Cost” drops in Week 1, and avoid the players with “Cost” increases in Week 1. 
 
 ```{r, fig.align = 'center'}
 ggplot(neg_vals, aes(x=Week, y=Cost, group = player_id, colour=factor(delta37_dummy))) +
@@ -489,7 +537,13 @@ ggplot(neg_vals, aes(x=Week, y=Cost, group = player_id, colour=factor(delta37_du
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_colour_manual(values = c("Increase" = "#009E73", "No Change" = "#CC79A7", "Decrease" = "#E69F00")) +
   theme(axis.text.x = element_text(size = 7, angle=45))
+```
 
+What the graph above shows, is that the players which experienced large negative down valuations, pretty much all did so in Week 1, and ended up having an upward trajectory afterwards. Stated otherwise, pretty much every soccer player that produces fewer than expected points in Week 1 goes on fire sale.
+
+On the other hand, the direct opposite was true among players which experienced a cumulative “Cost” increase of 300,000 or more from their original pricing at any point during the season. On the second graph, we see a very similar large shift in week 1 as fantasy users correct for the first week of games. However, an overwhelming majority of these players were valued lower in Week 37 than they were in Week 1. In other words, they were most overvalued in Week 1 and ultimately declined afterwards. 
+
+```{r, fig.align = 'center'}
 ggplot(pos_vals, aes(x=Week, y=Cost, group = player_id, colour=factor(delta37_dummy))) +
   scale_y_continuous(limits = c(3500000, 13500000), breaks = seq(3500000,20000000,500000), labels = label_number(suffix = "", scale = 1e-6)) +
   scale_x_continuous(breaks = seq(0,37,1)) +
@@ -504,8 +558,12 @@ ggplot(pos_vals, aes(x=Week, y=Cost, group = player_id, colour=factor(delta37_du
   theme(axis.text.x = element_text(size = 7, angle=45))
 
 # https://rdrr.io/cran/ggthemes/man/colorblind.html
-
 ```
+
+In all we can confidently conclude that players who experience a large drop in “Cost” in Week 1 are almost certainly undervalued, while those experiencing a large increase in “Cost” are almost certainly overvalued. While it may seem unconventional, we thus recommend users go after the players with the largest “Cost” drops in Week 1, and avoid the players with “Cost” increases in Week 1. 
+
+### Correlation Between Cost & Selected By Percentage
+
 
 Need Explanation
 ```{r}
@@ -555,18 +613,3 @@ plot_grid(g1, g2, ncol = 1)
 
 ```
 
-Need Explanation
-```{r, fig.align = 'center'}
-
-df_2021 <- df_2021 %>%
-  arrange(TotalPoints)
-
-ggplot(df_2021, aes(Week, player_id)) +
-  geom_tile(aes(fill = PointsLastRound)) +
-  ylab("Players") +
-  labs(fill = "Points that Week") +
-  scale_fill_gradient(low = "white", high = "blue" , limits=c(0,10))+
-  theme_classic() +
-  theme(axis.text.y=element_blank())
-
-```
