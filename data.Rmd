@@ -33,8 +33,10 @@ df_orig <- read_csv("Data/main/master.csv")
 # df_orig <- read_csv("https://raw.githubusercontent.com/ss16318/FantasyPremierLeaguePlayerValue/main/Data/main/master.csv")
 ```
 
+After all CSV files are imported, merged, and tidied, we know what an ideal dataset should look like – a dataframe with where observations should exists for every season between 2017 and 2021 for every week in those seasons. We then proceed to visualize the availability of our data over each season and week by showing tiles where they exist. In the graph show, we can see that we can missing a few select seemingly random weeks in 2019 and 2020, but in 2019 we also observe that there is a missing pattern where every week after 32, with the exception of 35, is missing. Taking the data to context, one can realize that the missing data from the end of the 2019 season is due to the emergence of Covid-19. With knowledge of what weeks we are missing, we proceed forward in the analysis.
+
 ```{r, fig.align = 'center'}
-#reserved for showing 2019 missing weeks
+# Missing Weeks Analysis
 df_missing_wk3637 = df_orig %>%
   select(Season, Week)
 
@@ -46,6 +48,8 @@ ggplot(df_missing_wk3637, aes(Season, factor(Week))) +
   ylab("Week") +
   scale_fill_gradient(low = "white", high = "blue", limits=c(0,1000))
 ```
+
+Leveraging the source code of the “plot_missing” function for modification, the missing patterns in the dataset is plotted, showing the affected variables and the percent rows and percent rows missing. We find that about 90% of the data is complete and fully populated. Out of the last 10%, all of them are missing the entry for the first name of the players, and an indiscernablly small number of rows are showing a missing patter of missing YellowCards, CleanSheets, Assists, SelectedByPercent, OwnGoals, MinutesPlayed, and RedCards. Since the first names of the players present little value when the last names are present (since last names in the premier league are usually unique), our dataset is effectively complete for the purpose of our analysis.
 
 ```{r}
 # Missing Value (NA) Analysis
