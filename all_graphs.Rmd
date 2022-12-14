@@ -53,20 +53,20 @@ Team_name_full <- c("ARSENAL", "ASTON VILLA", "BRENTFORD", "BRIGHTON & HOVE ALBI
                     "WATFORD", "WEST HAM UNITED", "WOLVERHAMPTON WANDERERS")
 
 # EF: Do Not USE
-# Logo <- list( image_read("emf_images/ARS.png"), image_read("emf_images/AVL.png"),
-#             image_read("emf_images/BHA.png"), image_read("emf_images/BRE.png"), 
-#             image_read("emf_images/BUR.png"), image_read("emf_images/CHE.png"), 
-#             image_read("emf_images/CRY.png"), image_read("emf_images/EVE.png"), 
-#             image_read("emf_images/LEE.png"), image_read("emf_images/LEI.png"), 
-#             image_read("emf_images/LIV.png"), image_read("emf_images/MCI.png"), 
-#             image_read("emf_images/MUN.png"), image_read("emf_images/NEW.png"), 
-#             image_read("emf_images/NOR.png"), image_read("emf_images/SOU.png"), 
-#             image_read("emf_images/TOT.png"), image_read("emf_images/WAT.png"), 
-#             image_read("emf_images/WHU.png"), image_read("emf_images/WOL.png"))
+# Logo <- list( image_read("Workspace/emf_images/ARS.png"), image_read("Workspace/emf_images/AVL.png"),
+#              image_read("Workspace/emf_images/BHA.png"), image_read("Workspace/emf_images/BRE.png"), 
+#              image_read("Workspace/emf_images/BUR.png"), image_read("Workspace/emf_images/CHE.png"), 
+#              image_read("Workspace/emf_images/CRY.png"), image_read("Workspace/emf_images/EVE.png"), 
+#              image_read("Workspace/emf_images/LEE.png"), image_read("Workspace/emf_images/LEI.png"), 
+#              image_read("Workspace/emf_images/LIV.png"), image_read("Workspace/emf_images/MCI.png"), 
+#              image_read("Workspace/emf_images/MUN.png"), image_read("Workspace/emf_images/NEW.png"), 
+#              image_read("Workspace/emf_images/NOR.png"), image_read("Workspace/emf_images/SOU.png"), 
+#              image_read("Workspace/emf_images/TOT.png"), image_read("Workspace/emf_images/WAT.png"), 
+#              image_read("Workspace/emf_images/WHU.png"), image_read("Workspace/emf_images/WOL.png"))
 
 
-Logo <- list.files(path="emf_images", pattern="*.png")
-image = paste0("emf_images", "/", Logo)
+Logo <- list.files(path="Data/emf_images", pattern="*.png")
+image = paste0("Data/emf_images", "/", Logo)
 df_2021_team_key <- data.frame(Place, Team_name_full, Team, image)
 ```
 
@@ -271,22 +271,6 @@ df_2021 <- df_orig %>%
 
 df_2021$player_id[df_2021$player_id == 'Davies_Ben_DEF' & df_2021$Team == 'TOT'] <- 'Davies_Ben_DEF_TOT'
 
-# Top Players at beginning
-top_players_beg <- df_2021 %>%
-  filter(Week == '00') %>%
-  arrange(desc(Cost)) %>%
-  head(7) %>%
-  select(player_id)
-
-df_2021_top_beg <- merge(df_2021, top_players_beg, by="player_id")
-df_2021_top_beg$Week <- as.numeric(df_2021_top_beg$Week)
-df_2021_top_beg$Week <- df_2021_top_beg$Week + 1
-
-pc_graph_2021_beg <- df_2021_top_beg %>%
-  select(Surname, Cost, Week, SelectedByPercent) %>%
-  arrange(Week, Surname)
-
-
 # pc_graph_2021_beg <- fct_reorder(pc_graph_2021_beg$Surname, pc_graph_2021_beg$Cost)
 remove(top_players_beg, df_2021_top_beg)
 
@@ -341,7 +325,7 @@ remove(tp_5_each_team, tp_10_each_team)
 ggplot(delta_bar, aes(reorder(Team, Place), cost_pts, fill=sub_group)) +
   geom_bar(position="dodge", stat="identity", width=0.6)+
   geom_image(aes(image=image, y = cost_pts + 250000), size=.05) +
-  scale_y_continuous(limits = c(0, 5200000), breaks = seq(0,5500000,500000), labels = label_number(suffix = " M", scale = 1e-6)) +
+  scale_y_continuous(limits = c(0, 5500000), breaks = seq(0,5500000,500000), labels = label_number(suffix = " M", scale = 1e-6)) +
   xlab(expression(atop("Team Ordered by Final Standings", paste("1st Place" %->% "20th Place")))) +
   ylab("Season Cost / Season Points") + 
   ggtitle("Costs Per Point of Top 5 Best Players on Each Team") +
@@ -354,33 +338,6 @@ ggplot(delta_bar, aes(reorder(Team, Place), cost_pts, fill=sub_group)) +
 ```
 
 
-```{r, fig.align = 'center', fig.width=100%}
-ggplot(df_2021_tp_5, aes(reorder(Team, Place), cost_pts)) +
-  geom_image(aes(image=image, y = cost_pts + 150000), size=.04) +
-  scale_y_continuous(limits = c(0, 5200000), breaks = seq(0,5500000,500000), labels = label_number(suffix = " M", scale = 1e-6)) +
-  xlab(expression(atop("Team Ordered by Final Standings", paste("1st Place" %->% "20th Place")))) +
-  ylab("Season Cost / Season Points") + 
-  ggtitle("Costs Per Point of Top 5 Best Players on Each Team") +
-  theme_light() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  geom_col(width=0.75) +
-  labs(fill="Cost / Points") +
-  theme(axis.text.x = element_text(size = 8, angle=25))
-
-
-ggplot(df_2021_tp_10, aes(reorder(Team, Place), cost_pts)) +
-  geom_image(aes(image=image, y = cost_pts + 150000), size=.04) +
-  scale_y_continuous(limits = c(0, 5200000), breaks = seq(0,5500000,500000), labels = label_number(suffix = " M", scale = 1e-6)) +
-  xlab(expression(atop("Team Ordered by Final Standings", paste("1st Place" %->% "20th Place")))) +
-  ylab("Season Cost / Season Points") + 
-  ggtitle("Costs Per Point of 5th to 10th Best Players on Each Team") +
-  theme_light() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  geom_col(width=0.75) +
-  labs(fill="Cost / Points") +
-  theme(axis.text.x = element_text(size = 8, angle=25))
-
-```
 
 
 ```{r}
@@ -469,7 +426,22 @@ ggplot(pos_vals, aes(x=Week, y=Cost, group = player_id, colour=factor(delta37_du
 # https://rdrr.io/cran/ggthemes/man/colorblind.html
 
 ```
+```{r}
+# Top Players at beginning
+top_players_beg <- df_2021 %>%
+  filter(Week == 0) %>%
+  arrange(desc(Cost)) %>%
+  head(7) %>%
+  select(player_id)
 
+df_2021_top_beg <- merge(df_2021, top_players_beg, by="player_id")
+df_2021_top_beg$Week <- as.numeric(df_2021_top_beg$Week)
+df_2021_top_beg$Week <- df_2021_top_beg$Week + 1
+
+pc_graph_2021_beg <- df_2021_top_beg %>%
+  select(Surname, Cost, Week, SelectedByPercent) %>%
+  arrange(Week, Surname)
+```
 
 
 ```{r, fig.align = 'center', fig.width=100%}
@@ -500,5 +472,18 @@ g2 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=Cost, group = Surname, colour=fact
 plot_grid(g1, g2, ncol = 1)
 
 ```
+```{r, fig.align = 'center', fig.width=100%}
 
+df_2021 <- df_2021 %>%
+  arrange(TotalPoints)
+
+ggplot(df_2021, aes(Week, player_id)) +
+  geom_tile(aes(fill = PointsLastRound)) +
+  ylab("Players") +
+  labs(fill = "Points that Week") +
+  scale_fill_gradient(low = "white", high = "red" , limits=c(0,10))+
+  theme_classic() +
+  theme(axis.text.y=element_blank())
+
+```
 
