@@ -35,7 +35,7 @@ library(rvest)
 library(robotstxt)
 library(png)
 
-library(redav)
+#library(redav)
 library(mi)
 ```
 
@@ -54,6 +54,8 @@ ggplot(df_missing_wk3637, aes(Season, factor(Week))) +
   stat_bin2d(aes(fill = after_stat(count)), binwidth = .999999) + 
   ggtitle("Visualization of Data Available by Season and Week") +
   theme(plot.title = element_text(hjust = 0.5)) + 
+  theme_classic() +
+  ylab("Week") +
   scale_fill_gradient(low = "white", high = "blue", limits=c(0,1000))
 ```
 
@@ -163,29 +165,7 @@ plot_missing2 <- function(x, percent = TRUE) {
 plot_missing2(df_orig, percent = TRUE)
 ```
 
-```{r, fig.align = 'center', fig.width=100%}
-# Plotting Minutes Played
-df_orig2 = df_orig
-df_orig2$Cost <- as.numeric(df_orig$Cost)
-df_orig2$TotalPoints <- as.numeric(df_orig$TotalPoints)
-df_orig2$PointsLastRound <- as.numeric(df_orig$PointsLastRound)
-df_orig2$MinutesPlayed <- as.numeric(df_orig$MinutesPlayed)
 
-df_orig2$Week <- as.numeric(df_orig$Week)
-
-player_histogram <- df_orig2 %>%
-  filter((Week == 37 & Season %in% c(2017, 2018, 2020, 2021)) |
-         (Week == 35 & Season == 2019)) %>%
-  mutate(avg_min_played = MinutesPlayed/Week) %>%
-  select(Surname, avg_min_played)
-
-ggplot(player_histogram, aes(avg_min_played)) +
-  geom_histogram(binwidth = 1,
-  fill="#0072B2", color="black") + #colorblind friendly
-  scale_x_continuous(breaks = seq(0, 100, by=5)) +
-  ggtitle("Player Count over Average Minutes Played") +
-  theme(plot.title = element_text(hjust = 0.5))
-```
 
 ```{r, fig.align = 'center', fig.width=100%}
 # Preprocess and Filtering
@@ -232,6 +212,7 @@ fwd <- d %>%
 d <- rbind(def, mid, fwd)
 ```
 
+
 ```{r}
 #EF: this is a dataframe of the team name, team full name, and 
 #    end position in 2021-2022 premier league table, and images
@@ -264,7 +245,34 @@ Logo <- list.files(path="Data/emf_images", pattern="*.png")
 image = paste0("Data/emf_images", "/", Logo)
 df_2021_team_key <- data.frame(Place, Team_name_full, Team, image)
 ```
+```{r, fig.align = 'center', fig.width=100%}
+# Plotting Minutes Played
+df_orig2 = df_orig
+df_orig2$Cost <- as.numeric(df_orig$Cost)
+df_orig2$TotalPoints <- as.numeric(df_orig$TotalPoints)
+df_orig2$PointsLastRound <- as.numeric(df_orig$PointsLastRound)
+df_orig2$MinutesPlayed <- as.numeric(df_orig$MinutesPlayed)
 
+df_orig2$Week <- as.numeric(df_orig$Week)
+
+player_histogram <- df_orig2 %>%
+  filter((Week == 37 & Season %in% c(2017, 2018, 2020, 2021)) |
+         (Week == 35 & Season == 2019)) %>%
+  mutate(avg_min_played = MinutesPlayed/Week) %>%
+  select(Surname, avg_min_played)
+
+ggplot(player_histogram, aes(avg_min_played)) +
+  geom_histogram(binwidth = 1 ) + 
+  geom_vline(xintercept = 45, colour="blue", linetype = "longdash") +
+  annotate("text", x=63, y=650, label="Minimum Average Minutes Played", angle=0) +
+  scale_x_continuous(breaks = seq(0, 100, by=5)) +
+  ggtitle("Player Count over Average Minutes Played") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab("Averaged Minutes Played in the Season") +
+  ylab("Count") +
+  theme_light() +
+  scale_color_colorblind()
+```
 ```{r, fig.align = 'center', fig.width=100%}
 # Plot Total Points against Cost
 ggplot(d, aes(x=Cost, y=TotalPoints)) + 
@@ -357,7 +365,8 @@ p3 <- ggplot(d, aes(x=PositionsList, y=PointPerCost)) +
   scale_color_colorblind()
 
 #Adding Plots Together
-p1 + p2 + p3 + guide_area() + plot_layout(ncol = 2, guides = "collect")
+p1 + p2 + p3 + guide_area() + plot_layout(ncol = 2, guides = "collect") + plot_annotation(title = "Boxplots of Total Points and Cost for Different Positions") & 
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ```{r}

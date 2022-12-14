@@ -23,7 +23,7 @@
 <meta name="author" content="Elliot Frank, Sebastian Steiner, Mengsu Alan Yang" />
 
 
-<meta name="date" content="2022-10-31" />
+<meta name="date" content="2022-12-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -115,12 +115,18 @@
 <h1><span class="header-section-number">Chapter 3</span> Data<a href="data.html#data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <div id="sources" class="section level2 hasAnchor" number="3.1">
 <h2><span class="header-section-number">3.1</span> Sources<a href="data.html#sources" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Source: <a href="http://fantasyoverlord.com/FPL/History" class="uri">http://fantasyoverlord.com/FPL/History</a>
+Season stats for 2016 to 2021 season</p>
 </div>
 <div id="cleaning-transformation" class="section level2 hasAnchor" number="3.2">
 <h2><span class="header-section-number">3.2</span> Cleaning / transformation<a href="data.html#cleaning-transformation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The code we used for data cleaning and transformation can be seen in the “combine_data.Rmd” file. Our data for each season is parsed across one file for each week, as such the first step in our transformation process was to compile all of the weeks and seasons into one dataset.</p>
+<p>The `import_columns’ list shows the variables from each weekly data set that we compiled. In lines 32-47, we loop through each file, retain the desired columns, and append the observations to a master dataframe. From the filename of each weekly data set, we added a match week (‘Week’) column, as well as distinguished the season (‘Year’). Lastly, we converted fields from strings to numerics for later calculations.</p>
 </div>
 <div id="missing-value-analysis" class="section level2 hasAnchor" number="3.3">
 <h2><span class="header-section-number">3.3</span> Missing value analysis<a href="data.html#missing-value-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
 
 </div>
 </div>

@@ -1,1 +1,572 @@
 # Results
+
+```{r}
+# Libraries to use
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(ggimage)
+library(ggridges)
+library(patchwork)
+library(GGally)
+library(tibble)
+library(dplyr) 
+library(viridis)
+
+library(openintro)
+library(descriptr)
+library(assertable)
+library(gapminder)
+library(stringr)
+library(arrow)
+library(forcats)
+library(scales)
+library(cowplot)
+library(rvest)
+library(robotstxt)
+library(png)
+```
+
+```{r}
+#EF: Need to change link when new dataset uploaded to git *(RC)****************
+df_orig <- read_csv("Data/main/master.csv")
+# df_orig <- read_csv("https://raw.githubusercontent.com/ss16318/FantasyPremierLeaguePlayerValue/main/Data/main/master.csv")
+```
+
+```{r, fig.align = 'center'}
+# Preprocess and Filtering
+# Filter for end of Season and Players with more than 74 points
+PointCost <- df_orig[df_orig$Week == 37,]
+d <- filter(PointCost, MinutesPlayed/37 >= 45)
+
+#Creates Points per Cost column and adds levels to positions
+d <- d %>% 
+   mutate(PointPerCost = TotalPoints / Cost) %>%
+   mutate(PositionsList =factor(PositionsList, levels=c("DEF", "MID", "FWD")))
+
+#Find averages for TotalPoints, Cost and PointsPerCost
+averagePPC <- mean(d$PointPerCost)
+averagePoints <- mean(d$TotalPoints)
+averageCost <- mean(d$Cost)
+
+#Rename to Bonus Points
+d <- d %>% rename("BonusPoints" = "Bonus")
+
+#Add Points from assists
+d <- d %>% 
+  mutate(AssistPoints = Assists * 3)
+
+#Add Defenders Points from Goals and Clean Sheets
+def <- d %>% 
+  filter(PositionsList == "DEF") %>%
+  mutate(GoalsScoredPoints = GoalsScored * 6) %>%
+  mutate(CleanSheetPoints = CleanSheets * 4)
+
+#Add Midfielder Points from Goals and Clean Sheets
+mid <- d %>% 
+  filter(PositionsList == "MID") %>%
+  mutate(GoalsScoredPoints = GoalsScored * 5) %>%
+  mutate(CleanSheetPoints = CleanSheets * 1)
+
+#Add Striker Points from Goals and Clean Sheets
+fwd <- d %>% 
+  filter(PositionsList == "FWD") %>%
+  mutate(GoalsScoredPoints = GoalsScored * 3) %>%
+  mutate(CleanSheetPoints = CleanSheets * 0)
+
+#Add 
+d <- rbind(def, mid, fwd)
+```
+
+
+```{r}
+#EF: this is a dataframe of the team name, team full name, and 
+#    end position in 2021-2022 premier league table, and images
+
+Place <- c(5, 14, 13, 9, 18, 3, 12, 16, 17, 8, 2, 1, 6, 11, 20, 15, 4, 19, 7, 10)
+
+Team <- c("ARS", "AVL", "BHA", "BRE", "BUR", "CHE", "CRY", "EVE", "LEE", "LEI", 
+          "LIV", "MCI", "MUN", "NEW", "NOR", "SOU", "TOT", "WAT", "WHU", "WOL")
+
+Team_name_full <- c("ARSENAL", "ASTON VILLA", "BRENTFORD", "BRIGHTON & HOVE ALBION", 
+                    "BURNLEY", "CHELSEA", "CRYSTAL PALACE", "EVERTON", "LEEDS UNITED", 
+                    "LEICESTER CITY", "LIVERPOOL", "MANCHESTER CITY", "MANCHESTER UNITED", 
+                    "NEWCASTLE UNITED", "NORWICH CITY", "SOUTHAMPTON", "TOTTENHAM HOTSPUR", 
+                    "WATFORD", "WEST HAM UNITED", "WOLVERHAMPTON WANDERERS")
+
+# EF: Do Not USE
+# Logo <- list( image_read("Workspace/emf_images/ARS.png"), image_read("Workspace/emf_images/AVL.png"),
+#              image_read("Workspace/emf_images/BHA.png"), image_read("Workspace/emf_images/BRE.png"), 
+#              image_read("Workspace/emf_images/BUR.png"), image_read("Workspace/emf_images/CHE.png"), 
+#              image_read("Workspace/emf_images/CRY.png"), image_read("Workspace/emf_images/EVE.png"), 
+#              image_read("Workspace/emf_images/LEE.png"), image_read("Workspace/emf_images/LEI.png"), 
+#              image_read("Workspace/emf_images/LIV.png"), image_read("Workspace/emf_images/MCI.png"), 
+#              image_read("Workspace/emf_images/MUN.png"), image_read("Workspace/emf_images/NEW.png"), 
+#              image_read("Workspace/emf_images/NOR.png"), image_read("Workspace/emf_images/SOU.png"), 
+#              image_read("Workspace/emf_images/TOT.png"), image_read("Workspace/emf_images/WAT.png"), 
+#              image_read("Workspace/emf_images/WHU.png"), image_read("Workspace/emf_images/WOL.png"))
+
+
+Logo <- list.files(path="Data/emf_images", pattern="*.png")
+image = paste0("Data/emf_images", "/", Logo)
+df_2021_team_key <- data.frame(Place, Team_name_full, Team, image)
+```
+
+Plot 1
+```{r, fig.align = 'center'}
+# Plotting Minutes Played
+df_orig2 = df_orig
+df_orig2$Cost <- as.numeric(df_orig$Cost)
+df_orig2$TotalPoints <- as.numeric(df_orig$TotalPoints)
+df_orig2$PointsLastRound <- as.numeric(df_orig$PointsLastRound)
+df_orig2$MinutesPlayed <- as.numeric(df_orig$MinutesPlayed)
+
+df_orig2$Week <- as.numeric(df_orig$Week)
+
+player_histogram <- df_orig2 %>%
+  filter((Week == 37 & Season %in% c(2017, 2018, 2020, 2021)) |
+         (Week == 35 & Season == 2019)) %>%
+  mutate(avg_min_played = MinutesPlayed/Week) %>%
+  select(Surname, avg_min_played)
+
+ggplot(player_histogram, aes(avg_min_played)) +
+  geom_histogram(binwidth = 1 ) + 
+  geom_vline(xintercept = 45, colour="blue", linetype = "longdash") +
+  annotate("text", x=63, y=650, label="Minimum Average Minutes Played", angle=0) +
+  scale_x_continuous(breaks = seq(0, 100, by=5)) +
+  ggtitle("Player Count over Average Minutes Played") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab("Averaged Minutes Played in the Season") +
+  ylab("Count") +
+  theme_light() +
+  scale_color_colorblind()
+```
+
+
+
+As can be seen from the graph, there is a positive correlation between total points and soccer player cost. This is expected as soccer players who score more points are more valuable, hence their cost should increase. However, there are large deviations from the correlation shown in the best fit line. If a soccer player lies above the best fit line, it shows that they have a high points per cost output and consequently are undervalued. Likewise, if a player lies below the best fit line, they have a low points per cost output and are overvalued. Therefore, moving forward our analysis will investigate if there are patterns which lead to players being above or below this best fit line. 
+
+In the graph, there is no clear trend showing that the number of points a player scores in a season depends on the year. In other words, in further analysis we may assume that player stats are time-independent. Further, it must be noted that the 2019 analysis has been excluded from the plot as the final week of the season was missing from the data source (as discussed in the missing data analysis).  
+
+```{r, fig.align = 'center'}
+# Plot Total Points against Cost
+ggplot(d, aes(x=Cost, y=TotalPoints)) + 
+  geom_point(aes(colour = factor(Season))) +
+  geom_smooth(method = "loess", se = FALSE, color = 'darkmagenta') +
+  ggtitle("Total Points in a Season against Cost with Best Fit Line") +
+  xlab("Cost (in Millions)") + 
+  ylab("Total Points") +
+  labs(colour = "Season") +
+  theme_light() +
+  scale_x_continuous(labels = label_number(suffix = "", scale = 1e-6), breaks = seq(0,14000000,1000000)) +
+  scale_color_colorblind() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+Selected By Percentage describes the proportion of FPL users that have selected a certain soccer player in their team; for example, if the Selected By Percentage is 10% for soccer player X, this means that 10% of FPL users have chosen soccer player X for their team. To illustrate why this statistic is important, lets now assume player X has a Selected By Percentage of 95%. Whenever soccer player X plays, 95% of FPL players will receive the points player X scores. This reduces the value of picking player X in your team because whenever player X scores points, 95% of FPL players will benefit from these points. Therefore, a useful strategy to implement when building an FPL team is to try to choose soccer players with a low Selected By Percentage because if these soccer players score a lot of points, fewer FPL users will benefit from these points. As can be seen in the relative frequency histogram, most soccer players have a Selected By Percentage of less than 20%, which is low. Therefore, in future analysis we do not have to worry about players having a high Selected By Percentage, which would reduce their value. 
+
+Another to note in this graph is the fact that the majority of soccer players are defenders and midfielders, not forwards. This difference can be explained with the knowledge that a typical soccer lineup is 4-4-2, which means the team fields 4 defenders, 4 midfielders and 2 forwards. Hence, we would expect there to be more defenders and midfielders than forwards in the dataset, as soccer lineups use more defenders and midfielders. 
+
+```{r, fig.align = 'center'}
+#Selected By % Plot
+ggplot(d, aes(x=SelectedByPercent, y= 100*(..count..)/sum(..count..))) + 
+  geom_histogram(binwidth=2) +
+  facet_grid(cols = vars(PositionsList)) +
+  ylab("Relative Frequency %")+
+  xlab("Selected By %") +
+  theme_light() +
+  scale_color_colorblind() +
+  ggtitle("Relavtive Frequency over Selected-By Percentage") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+In the parallel coordinates plot, we see that there are 3 distinct clusters for how soccer players score points and these clusters follow position categories. With defenders, we see that they score few points from goals and assists, but a lot of points from having clean sheets (a clean sheet occurs when a team does not concede a goal during a game). Looking at midfielders and forwards, we see that most of their points come from goals and assists. Moreover, in terms of clean sheets for midfielders, they get relatively few and for forwards they get zero points from clean sheets (which is explained as forwards cannot score points from clean sheets). Focusing on bonus points, we have no evidence suggesting that certain positions score more bonus points than others. 
+
+An interesting point to note is that the soccer players with the most points from goals scored are midfielders, differing from the expectation that forwards score the most points from goals. One explanation for this could be that when a forward scores a goal they receive 4 points, while midfielders receive 5. However, deeper analysis reveals that these midfield players are Salah, Mane and Son. It could be argued that these soccer players should be classified as forwards because they sometimes play the striker position. Hence, one could argue that these top scoring players in terms of points from goals occur because the players are misclassified as midfielders rather than strikers and therefore receive 5 points per goal rather than 4. This leads to the conclusion that a strategy to pick undervalued players is to pick players like Salah, Mane and Son who play as wingers/strikers but are classified as midfielders in the game.
+
+```{r, fig.align = 'center'}
+#Select Top 50 players in each position and the ways they scored points
+pointCategories <- d %>%                                      
+  arrange(desc(TotalPoints)) %>% 
+  group_by(PositionsList) %>%
+  slice(1:50) %>%
+  ungroup() %>%
+  select(  "GoalsScoredPoints", "AssistPoints",  "CleanSheetPoints", "BonusPoints", "PositionsList")
+
+#Parallel Coordinate Plot
+ggparcoord(data = pointCategories, columns = 1:4, groupColumn = 5, scale = "globalminmax" , alphaLines = 0.6 , splineFactor = 4) +
+  ggtitle("How The Top 50 Performing Players Score Points") + 
+  labs(y = "Global MinMax Feature Value", x = "Point Types") +
+  labs(colour = "Position") +
+  theme_light() +
+  scale_color_colorblind() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+In the next graph, we see boxplots of total points, cost and points per cost for each position (defenders, midfielders and forwards). In the boxplot of total points we see that forwards generally score the most points and defenders score the least, indicating that forwards are the most valuable and defenders the least. However, when looking at the cost boxplot, we see that defenders cost the least and forwards cost the most, suggesting that defenders could have the best value for money. In the third boxplot, we divide the total points by cost and find that these two opposing effects cancel out as the median points per cost is roughly 18 points per million (£). 
+
+Interestingly, we also notice that the variation of points per cost is largest for defenders and smallest for forwards. This implies that when choosing forwards, there is a smaller risk of the soccer player being overvalued and a smaller reward for the player being undervalued, while the reverse is true for defenders who have a larger risk and larger reward.
+```{r, fig.align = 'center'}
+# NEEDS TITLE
+#Boxplot for Points
+p1 <- ggplot(d, aes(x=PositionsList, y=TotalPoints)) + 
+  geom_boxplot(outlier.size=0.8) +
+  xlab("Position") + 
+  ylab("Total Points") +
+  geom_hline(aes(yintercept= averagePoints, linetype = "Average Points"), colour= 'blue') +
+  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("blue")))) +
+  theme_light() +
+  scale_color_colorblind()
+
+#Boxplot for Cost
+p2 <- ggplot(d, aes(x=PositionsList, y=Cost)) + 
+  geom_boxplot(outlier.size=0.8) +
+  xlab("Position") + 
+  ylab("Cost") +
+  geom_hline(aes(yintercept= averageCost, linetype = "Average Points"), colour= 'deeppink') +
+  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("purple")))) +
+  theme_light() +
+  scale_color_colorblind()
+
+#Boxplot for Points per Cost
+p3 <- ggplot(d, aes(x=PositionsList, y=PointPerCost)) + 
+  geom_boxplot(outlier.size=0.8) +
+  xlab("Position") + 
+  ylab("Total Points per Cost") +
+  geom_hline(aes(yintercept= averagePPC, linetype = "Average Points per Cost"), colour= 'red') +
+  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("red")))) +
+  theme_light() +
+  scale_color_colorblind()
+
+#Adding Plots Together
+p1 + p2 + p3 + guide_area() + plot_layout(ncol = 2, guides = "collect") + plot_annotation(title = "Boxplots of Total Points and Cost for Different Positions") & 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+In recent soccer history, the premier league has been dominated by a group of teams referred to as “The Big Six”, or Manchester City, Liverpool, Chelsea, Totettenham, Arsenal, and Manchester United. These teams all have global name recognition, with millions of fans around the world, leading to huge payroll budgets. According to The Athletic, Manchester City will spend £430 million in the 2022-2023 season paying its players, followed by Chelsea (£343), Manchester United (£323 mn), Liverpool (£314), Arsenal (£244), and Tottenham (£205). Meanwhile, the bottom tier teams’ payroll budgets tend to hover between £10 to £50. With such market power to win talent, these teams use their deep pockets to stay at the top of the leaderboard.
+
+Unsurprisingly, the best players are concentrated on these six teams. Given “Cost” in fantasy football is driven by performance, and how many users select an athlete for their team, it’s no surprise that the highest “Cost” players in fantasy soccer are concentrated within the “Big Six” teams.
+
+In the ridge graph above, we plotted the distribution of player fantasy “Cost” in the last week of the 2017 - 2021 seasons, because “Cost” in the last week reflects the player’s performance over the course of the entire season. For clarity, we ordered the teams in the ridge graph by their record at the end of the 2021 season, with MCI finishing in first, and BUR finishing at the bottom. An important feature of the English Premier League is that the worst three teams are kicked out at the end of the season. While the top teams are competing to win the league, the bottom teams are fighting to avoid being demoted. For consistency, we chose to include only the teams which played in the league every year between 2017 and 2021.
+
+What we see in the graph is reflective of reality, that the soccer players on the bottom of the bottom teams are mostly concentrated around a mean of 4 to 5 million, but as you climb up the board, the mean shifts to between 5 and 6 million, and the tails get longer and longer. 
+
+Overall, we see that there is a clear association between teams with higher records and fantasy “Cost” of players on those teams. Given the winning teams are those that score more goals than their opponents, it’s not surprising that fantasy points, and thus “Cost” are concentrated on those teams. 
+
+https://theathletic.com/3476123/2022/08/10/premier-league-wages-growth-tax-top-earners/
+
+```{r}
+# EF: Ridgeplot
+ridge_teams <- df_orig %>%
+  select(Team, Season) %>%
+  distinct() %>%
+  group_by(Team) %>%
+  summarise(count = n()) %>%
+  filter(count == 5) %>%
+  select(Team)
+
+ridge_teams <- merge(ridge_teams, df_2021_team_key, by="Team")
+
+ridge_data <- merge(df_orig, ridge_teams, by="Team")
+ridge_data$Week <- as.numeric(ridge_data$Week)
+  
+ridge_data_a <- ridge_data %>%
+  filter((Week == 37 & Season %in% c(2017, 2018, 2020, 2021)) | 
+         (Week == 35 & Season == 2019)) %>%
+  filter(MinutesPlayed > 0) %>%
+  mutate(avg_min_played = MinutesPlayed / Week)
+
+ridge_data_b <- ridge_data %>%
+  filter((Week == 37 & Season %in% c(2017, 2018, 2020, 2021)) | 
+         (Week == 35 & Season == 2019)) %>%
+  filter(MinutesPlayed > 0) %>%
+  mutate(avg_min_played = MinutesPlayed / Week) %>%
+  filter(avg_min_played >= 45)
+  
+```
+
+```{r, fig.align = 'center'}
+ridge_data_b %>%
+  ggplot(aes(x = Cost, y = reorder(Team, -Place))) +
+  geom_density_ridges(aes(fill = Team), scale = 3, size = 0.4, rel_min_height = 0.01, show.legend=FALSE) +
+  ggtitle("Final Week Player Cost Distribution of Past 5 Seasons") +
+  scale_x_continuous(limits = c(3000000, 14000000), labels = label_number(suffix = "", scale = 1e-6), breaks = seq(0,14000000,1000000)) +
+  xlab("Player Cost (Millions)") + 
+  ylab("Team") + 
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_viridis(discrete=TRUE)
+
+```
+
+
+```{r}
+#EF: checking for duplicate player names and positions
+df_2021_check <- df_orig %>%
+  filter(Season == '2021') %>%
+  mutate_at(c('FirstName'), ~replace_na(.,"NAMELESS")) %>%
+  select(Surname, FirstName, PositionsList) %>%
+  unite("player_id", c('Surname', 'FirstName', 'PositionsList'), sep= "_", remove=FALSE) %>%
+  group_by(player_id) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+
+remove(df_2021_check)
+
+df_2021 <- df_orig %>%
+  filter(Season == '2021') %>%
+  mutate_at(c('FirstName'), ~replace_na(.,"NAMELESS")) %>%
+  unite("player_id", c('Surname', 'FirstName', 'PositionsList'), sep= "_", remove=FALSE)
+
+df_2021$player_id[df_2021$player_id == 'Davies_Ben_DEF' & df_2021$Team == 'TOT'] <- 'Davies_Ben_DEF_TOT'
+
+# pc_graph_2021_beg <- fct_reorder(pc_graph_2021_beg$Surname, pc_graph_2021_beg$Cost)
+remove(top_players_beg, df_2021_top_beg)
+
+tp_5_each_team <- df_2021 %>%
+  filter(Week == '37') %>%
+  rename("team_grp" = "Team") %>%
+  group_by(team_grp) %>%
+  mutate(prank = rank(-TotalPoints)) %>%
+  filter(prank <= 5) %>%
+  select(player_id)
+
+df_2021_tp_5 <- merge(df_2021, tp_5_each_team, by="player_id")
+
+df_2021_tp_5 <- df_2021_tp_5 %>%
+  select(Surname, Cost, Team, PointsLastRound, Week) %>%
+  filter(Week > 0) %>%
+  group_by(Team) %>%
+  summarise(team_tot_pts = sum(PointsLastRound), team_tot_cost = sum(Cost)) %>%
+  mutate(cost_pts = team_tot_cost / team_tot_pts) %>%
+  mutate(pts_cost = team_tot_pts / team_tot_cost) %>%
+  mutate(sub_group = 'Top 1-5') %>%
+  merge(df_2021_team_key, by="Team") %>%
+  mutate(image = NA)
+
+tp_10_each_team <- df_2021 %>%
+  filter(Week == '37') %>%
+  rename("team_grp" = "Team") %>%
+  group_by(team_grp) %>%
+  mutate(prank = rank(-TotalPoints)) %>%
+  filter(prank > 5 & prank <= 10) %>%
+  select(player_id)
+
+df_2021_tp_10 <- merge(df_2021, tp_10_each_team, by="player_id")
+
+df_2021_tp_10 <- df_2021_tp_10 %>%
+  select(Surname, Cost, Team, PointsLastRound, Week) %>%
+  filter(Week > 0) %>%
+  group_by(Team) %>%
+  summarise(team_tot_pts = sum(PointsLastRound), team_tot_cost = sum(Cost)) %>%
+  mutate(cost_pts = team_tot_cost / team_tot_pts) %>%
+  mutate(pts_cost = team_tot_pts / team_tot_cost) %>%
+  mutate(sub_group = 'Top 6-10') %>%
+  merge(df_2021_team_key, by="Team")
+
+delta_bar <- rbind(df_2021_tp_5, df_2021_tp_10)
+
+remove(tp_5_each_team, tp_10_each_team)
+```
+
+
+While the previous ridge line plot clearly indicates that players on better teams “Cost” more in fantasy, we wanted to ask the question “Is the higher cost of players on winning teams justified in terms of producing fantasy points?” 
+
+To find an answer, we grouped the 5 highest scoring players on each team in the 2021 season, and divided their total fantasy “Costs” by the number of fantasy points they produced on a bar chart. Next, we did the same thing with each team’s 6 to 10th highest scoring players.  Lastly, the teams are ordered from left to right in the place the team finished the 2021 season.
+
+In looking at the Cost / Point ratio among top 5 players, most teams range around 1.5 to 2.5 million. Seeing that the green bars are pretty consistent across the top and middle of the pack, we conclude that fantasy users generally aren't willing to pay disproportionate  “Cost” for players on a Big Six team. There appears to be a mild increase towards the last 3 teams, which makes sense as the performance of their top players resulted in the team being kicked out of the league. 
+
+Of course, there are a few major exceptions, which we find are the most interesting parts of the graph. Compared to its peers, Manchester United’s (MUN) “Cost / Points” ratio is higher than any other team in the league. In examining the data, we found that this is largely driven by the underperformance of its key star players. For example, Crsitiano Ronaldo was traded to Manchester United last year, and was expected to make a huge impact. At 37 years old, and in his 20th season of playing professional soccer, he failed to perform as highly as expected. As such, his “Cost” was extremely high all season, but he produced few fantasy points to show for it. 
+
+Overall, we believe the higher “Cost / Points” ratio teams indicate those which underperformed in the league relative to expectations. All 4 teams whose Top 5 player “Cost / Points” ratio exceeded 2.5 million (MUN, LEI, EVE, BUR), were expected to place higher than they did given their record in 2020 and the real life salary budget at the club’s disposal. 
+
+From this graph, we conclude two recommendations to users. First, there doesn't appear to be a premium on ‘Cost / Points’ for players on better teams. So if you can get more bang for your buck by choosing players on the best teams, go for it. 
+
+Secondly, in terms of bang for your buck, you are almost always better off choosing a top 5 player from a lower standing team, than a top 6 -10 player on a higher team. With exceptions to three top teams (MIC, LIV, TOT), the green bars are almost always below the yellow bars, meaning that the ‘Cost / Price’ ratio severely falls off outside of the top 5 players.
+
+```{r, fig.align = 'center'}
+ggplot(delta_bar, aes(reorder(Team, Place), cost_pts, fill=sub_group)) +
+  geom_bar(position="dodge", stat="identity", width=0.6)+
+  geom_image(aes(image=image, y = cost_pts + 250000), size=.05) +
+  scale_y_continuous(limits = c(0, 5500000), breaks = seq(0,5500000,500000), labels = label_number(suffix = " M", scale = 1e-6)) +
+  xlab(expression(atop("Team Ordered by Final Standings", paste("1st Place" %->% "20th Place")))) +
+  ylab("Season Cost / Season Points") + 
+  ggtitle("Costs Per Point of Top 5 Best Players on Each Team") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(fill="Cost / Points") +
+  theme(axis.text.x = element_text(size = 8, angle=25)) +
+  scale_fill_manual(values = c("Top 1-5" = "#009E73", "Top 6-10" = "#E69F00"))
+
+```
+
+
+
+```{r}
+# look at the greatest value change players over the season
+gc_w0 <- df_2021 
+gc_w0$Week <- as.numeric(gc_w0$Week)
+
+gc_w0 <- gc_w0 %>%
+    arrange(player_id, Week) %>%
+    mutate(cost_diff = case_when(
+      Week == 0 ~ 0,
+      Week > 0 ~ (Cost - lag(Cost)))) %>%
+    select(player_id, Week, Cost, PointsLastRound, cost_diff)
+
+gc_w0 <- gc_w0 %>% 
+  group_by(player_id) %>% 
+  mutate(cum_cost_diff = cumsum(cost_diff)) %>%
+  mutate(min_val = min(Cost)) %>%
+  mutate(max_val = max(Cost)) %>%
+  mutate(largest_diff = max_val - min_val) 
+
+wk1_37_dummies <- gc_w0 %>%
+  select(player_id, Week, Cost) %>%
+  filter(Week == 37 | Week == 1) %>%
+  pivot_wider(names_from = Week, values_from = Cost) %>%
+  rename("Wk_1_val" = "1") %>%
+  rename("Wk_37_val" = "37") %>%
+  mutate(wk_1_wk37_diff = Wk_37_val - Wk_1_val) %>%
+  mutate(delta37_dummy = case_when(
+     wk_1_wk37_diff > 0 ~ 'Increase',
+     wk_1_wk37_diff == 0 ~ 'No Change',
+     wk_1_wk37_diff < 0 ~ 'Decrease',)) %>%
+  select(player_id, delta37_dummy)
+
+wk1_37_dummies$delta37_dummy <- factor(wk1_37_dummies$delta37_dummy, 
+                                     levels = c("Increase", "No Change", "Decrease"))
+
+neg_players <- gc_w0 %>% 
+  filter(cum_cost_diff <= -300000) %>%
+  select(player_id) %>%
+  distinct()
+
+neg_vals <- merge(gc_w0, neg_players, by="player_id", all = FALSE)
+neg_vals <- merge(neg_vals, wk1_37_dummies, by="player_id")
+neg_vals <- filter(neg_vals, !is.na(neg_vals$delta37_dummy))
+
+pos_players <- gc_w0 %>% 
+  filter(cum_cost_diff >= 300000) %>%
+  select(player_id) %>%
+  distinct()
+
+pos_vals <- merge(gc_w0, pos_players, by="player_id", all = FALSE)
+pos_vals <- merge(pos_vals, wk1_37_dummies, by="player_id")
+pos_vals <- filter(pos_vals, !is.na(pos_vals$delta37_dummy))
+
+```
+
+As discussed earlier, the strategy in winning fantasy soccer lies in being able to pick the differential, or finding the low “Cost” players which provide the highest number of points. In trying to identify these bargain players, we wanted to see which players over the course of the season had their prices go up the most, and conversely, those whose prices went down the most. 
+
+In all, there was far less movement in player “Cost” than anticipated. For the past three seasons, the top 10 highest “Cost” players at the beginning of the season were also the top 10 highest “Cost” players at the end of the season. Additionally, we found that about 75% of players have “Costs” which vary less than +/- 200,000 over the course of the entire season. As such, we decided to graph the “Costs” of players over the 2021 season whose price went up or down by 300,000 or more. 
+
+On the first chart, we see soccer players that experienced a cumulative “Cost” decrease of 300k, or more, from their original pricing at any point during the season. As you might notice, there is a large drop in Week 1 for almost every player. For background, fantasy users choose their team during the summer, before any soccer games have been played. As such, soccer player “Costs” when initially chosen are based on last year’s performance. The large swing in “Costs” in Week 1 can be interpreted as users reacting to the first week of games of the current season. 
+
+For comparison sake, we colored the lines based on whether the player’s Week 37 “Cost” (last game of the season) was greater than Week 1. In other words, whether the soccer player’s valuation recovered from the initial jolt of their Week 1 performance. Interestingly enough, you’ll notice that all players except for one (which came out neutral) were in fact valued higher at the end of the season.
+
+In our view, the rising “Costs” for a player signals that they were previously undervalued, or that the “Cost / Points” ratio was off relative to other players, and required correction. As such, picking a player on the upswing, at their lowest “Cost” point during the season, is directly equivalent to picking the player when they are most undervalued. Like stocks, we want to get in at the lowest point, and ride it to the top, which translates to the user theoretically benefiting from a lower than market rate “Cost / Points” ratio until the soccer player’s “Cost” peaks.
+
+What the graph above shows, is that the players which experienced large negative down valuations, pretty much all did so in Week 1, and ended up having an upward trajectory afterwards. Stated otherwise, pretty much every soccer player that produces fewer than expected points in Week 1 goes on fire sale.
+
+On the other hand, the direct opposite was true among players which experienced a cumulative “Cost” increase of 300,000 or more from their original pricing at any point during the season. On the second graph, we see a very similar large shift in week 1 as fantasy users correct for the first week of games. However, an overwhelming majority of these players were valued lower in Week 37 than they were in Week 1. In other words, they were most overvalued in Week 1 and ultimately declined afterwards. 
+
+In all we can confidently conclude that players who experience a large drop in “Cost” in Week 1 are almost certainly undervalued, while those experiencing a large increase in “Cost” are almost certainly overvalued. While it may seem unconventional, we thus recommend users go after the players with the largest “Cost” drops in Week 1, and avoid the players with “Cost” increases in Week 1. 
+
+```{r, fig.align = 'center'}
+ggplot(neg_vals, aes(x=Week, y=Cost, group = player_id, colour=factor(delta37_dummy))) +
+  scale_y_continuous(limits = c(3500000, 13500000), breaks = seq(3500000,20000000,500000), labels = label_number(suffix = " M", scale = 1e-6)) +
+  scale_x_continuous(breaks = seq(-0,37,1)) +
+  geom_line(size=0.3, alpha=0.75) +
+  geom_point(size=0.3, alpha = 0.75, stroke = 0) +
+  theme_light() +
+  labs(colour = "Weeks 1 vs 37") +
+  ggtitle("Players Experiencing 300K or Greater \n Cumulitive Cost Decrease in 2021") +
+  ylab("Cost in Week (Millions)") + xlab("Game Week") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_colour_manual(values = c("Increase" = "#009E73", "No Change" = "#CC79A7", "Decrease" = "#E69F00")) +
+  theme(axis.text.x = element_text(size = 7, angle=45))
+
+ggplot(pos_vals, aes(x=Week, y=Cost, group = player_id, colour=factor(delta37_dummy))) +
+  scale_y_continuous(limits = c(3500000, 13500000), breaks = seq(3500000,20000000,500000), labels = label_number(suffix = "", scale = 1e-6)) +
+  scale_x_continuous(breaks = seq(0,37,1)) +
+  geom_line(size=0.3, alpha=0.75) +
+  geom_point(size=0.3, alpha = 0.75, stroke = 0) +
+  theme_light() +
+  labs(colour = "Weeks 1 vs 37") +
+  ggtitle("Players Experiencing 300K or Greater \n Cumulitive Cost Increase in 2021") +
+  ylab("Cost in Week (Millions)") + xlab("Game Week") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_colour_manual(values = c("Increase" = "#009E73", "No Change" = "#CC79A7", "Decrease" = "#E69F00")) +
+  theme(axis.text.x = element_text(size = 7, angle=45))
+
+# https://rdrr.io/cran/ggthemes/man/colorblind.html
+
+```
+
+Need Explanation
+```{r}
+# Top Players at beginning
+top_players_beg <- df_2021 %>%
+  filter(Week == 0) %>%
+  arrange(desc(Cost)) %>%
+  head(7) %>%
+  select(player_id)
+
+df_2021_top_beg <- merge(df_2021, top_players_beg, by="player_id")
+df_2021_top_beg$Week <- as.numeric(df_2021_top_beg$Week)
+df_2021_top_beg$Week <- df_2021_top_beg$Week + 1
+
+pc_graph_2021_beg <- df_2021_top_beg %>%
+  select(Surname, Cost, Week, SelectedByPercent) %>%
+  arrange(Week, Surname)
+```
+
+
+```{r, fig.align = 'center'}
+g1 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=SelectedByPercent, group = Surname, colour=factor(Surname))) +
+  scale_y_continuous(limits = c(0,75), breaks = seq(0,100,10), labels = label_number(suffix = "%")) +
+  scale_x_continuous(breaks = seq(0,38,1)) +
+  geom_line() +
+  geom_point(size=1.5, alpha = 0.75, stroke = 0) +
+  labs(colour = "Player") +
+  ylab("PercentageBy") + xlab("Game Week") +
+  theme_light() +
+  theme(axis.text.x = element_text(size = 7, angle=45)) +
+  scale_colour_colorblind() +
+  ggtitle("Highest Cost Players of 2021 Season") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+g2 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=Cost, group = Surname, colour=factor(Surname))) +
+  scale_y_continuous(limits = c(11400000, 13300000), breaks = seq(11500000,13500000,500000), labels = label_number(suffix = "", scale = 1e-6)) +
+  scale_x_continuous(breaks = seq(0,38,1)) +
+  geom_line() +
+  geom_point(size=1.5, alpha = 0.75, stroke = 0) +
+  labs(colour = "Player") +
+  ylab("Cost") + xlab("Game Week") +
+  theme_light() +
+  theme(axis.text.x = element_text(size = 7, angle=45)) +
+  scale_colour_colorblind()
+
+plot_grid(g1, g2, ncol = 1)
+
+```
+
+Need Explanation
+```{r, fig.align = 'center'}
+
+df_2021 <- df_2021 %>%
+  arrange(TotalPoints)
+
+ggplot(df_2021, aes(Week, player_id)) +
+  geom_tile(aes(fill = PointsLastRound)) +
+  ylab("Players") +
+  labs(fill = "Points that Week") +
+  scale_fill_gradient(low = "white", high = "blue" , limits=c(0,10))+
+  theme_classic() +
+  theme(axis.text.y=element_blank())
+
+```
