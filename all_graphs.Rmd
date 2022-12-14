@@ -10,6 +10,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
 ```{r}
+# Libraries to use
 library(tidyverse)
 library(ggplot2)
 library(ggthemes)
@@ -34,48 +35,160 @@ library(rvest)
 library(robotstxt)
 library(png)
 
+library(redav)
+library(mi)
 ```
-
-
-```{r}
-#EF: this is a dataframe of the team name, team full name, and 
-#    end position in 2021-2022 premier league table, and images
-
-Place <- c(5, 14, 13, 9, 18, 3, 12, 16, 17, 8, 2, 1, 6, 11, 20, 15, 4, 19, 7, 10)
-
-Team <- c("ARS", "AVL", "BHA", "BRE", "BUR", "CHE", "CRY", "EVE", "LEE", "LEI", 
-          "LIV", "MCI", "MUN", "NEW", "NOR", "SOU", "TOT", "WAT", "WHU", "WOL")
-
-Team_name_full <- c("ARSENAL", "ASTON VILLA", "BRENTFORD", "BRIGHTON & HOVE ALBION", 
-                    "BURNLEY", "CHELSEA", "CRYSTAL PALACE", "EVERTON", "LEEDS UNITED", 
-                    "LEICESTER CITY", "LIVERPOOL", "MANCHESTER CITY", "MANCHESTER UNITED", 
-                    "NEWCASTLE UNITED", "NORWICH CITY", "SOUTHAMPTON", "TOTTENHAM HOTSPUR", 
-                    "WATFORD", "WEST HAM UNITED", "WOLVERHAMPTON WANDERERS")
-
-# EF: Do Not USE
-# Logo <- list( image_read("Workspace/emf_images/ARS.png"), image_read("Workspace/emf_images/AVL.png"),
-#              image_read("Workspace/emf_images/BHA.png"), image_read("Workspace/emf_images/BRE.png"), 
-#              image_read("Workspace/emf_images/BUR.png"), image_read("Workspace/emf_images/CHE.png"), 
-#              image_read("Workspace/emf_images/CRY.png"), image_read("Workspace/emf_images/EVE.png"), 
-#              image_read("Workspace/emf_images/LEE.png"), image_read("Workspace/emf_images/LEI.png"), 
-#              image_read("Workspace/emf_images/LIV.png"), image_read("Workspace/emf_images/MCI.png"), 
-#              image_read("Workspace/emf_images/MUN.png"), image_read("Workspace/emf_images/NEW.png"), 
-#              image_read("Workspace/emf_images/NOR.png"), image_read("Workspace/emf_images/SOU.png"), 
-#              image_read("Workspace/emf_images/TOT.png"), image_read("Workspace/emf_images/WAT.png"), 
-#              image_read("Workspace/emf_images/WHU.png"), image_read("Workspace/emf_images/WOL.png"))
-
-
-Logo <- list.files(path="Data/emf_images", pattern="*.png")
-image = paste0("Data/emf_images", "/", Logo)
-df_2021_team_key <- data.frame(Place, Team_name_full, Team, image)
-```
-
 
 ```{r}
 #EF: Need to change link when new dataset uploaded to git *(RC)****************
 df_orig <- read_csv("Data/main/master.csv")
 # df_orig <- read_csv("https://raw.githubusercontent.com/ss16318/FantasyPremierLeaguePlayerValue/main/Data/main/master.csv")
+```
 
+```{r, fig.align = 'center', fig.width=100%}
+#reserved for showing 2019 missing weeks
+df_missing_wk3637 = df_orig %>%
+  select(Season, Week)
+
+ggplot(df_missing_wk3637, aes(Season, factor(Week))) +
+  stat_bin2d(aes(fill = after_stat(count)), binwidth = .999999) + 
+  ggtitle("Visualization of Data Available by Season and Week") +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_gradient(low = "white", high = "blue", limits=c(0,1000))
+```
+
+```{r}
+# Missing Value (NA) Analysis
+plot_missing2 <- function(x, percent = TRUE) {	
+  na_count_all <- data.frame(is.na(x)) %>%	
+    dplyr::group_by_all() %>%	
+    dplyr::count(name = "count", sort = TRUE) %>%	
+    dplyr::ungroup() %>%	
+    tibble::rownames_to_column("pattern")	
+  
+  na_count_all <- na_count_all %>% 
+    dplyr::mutate(pattern = factor(.data$pattern, levels = nrow(na_count_all):1))
+  
+  # count the number of columns with missing values; will be used later to determine if there's a "none missing" pattern	
+  na_count_all <- na_count_all %>% 	
+    dplyr::rowwise() %>%	
+    dplyr::mutate(num_missing_cols = sum(dplyr::c_across(where(is.logical))))	
+  
+  # data frame for missing patterns bar chart	
+  na_count_by_pattern <- na_count_all[,c("pattern", "count", "num_missing_cols")]
+  na_count_by_pattern$none_missing <- ifelse(na_count_by_pattern$num_missing_cols == 0, TRUE, FALSE)
+
+  # data frame for missing by column bar chart	
+  na_count_by_column <- data.frame(is.na(x)) %>%	
+    colSums() %>% 	
+    sort(decreasing = TRUE) %>% 	
+    tibble::enframe(name = "var", value = "count")	
+  
+  # tidy and sort na_count_all by column counts
+  na_count_all_tidy <- na_count_all %>% 	
+    tidyr::pivot_longer(where(is.logical), names_to = "variable") %>%	
+    dplyr::mutate(variable = factor(.data$variable, levels = na_count_by_column$var))  %>% 	
+    dplyr::mutate(none_missing = ifelse(.data$num_missing_cols == 0, TRUE, FALSE))	
+  
+  # main plot
+  main_plot <- ggplot2::ggplot(na_count_all_tidy, ggplot2::aes(.data$variable, .data$pattern, fill = factor(.data$value), alpha = .data$none_missing)) +	
+    ggplot2::geom_tile(color = "white") +	
+    ggplot2::scale_fill_manual(values = c("grey70", "mediumpurple")) +	
+    ggplot2::scale_alpha_manual(values = c(.7, 1)) +	
+    ggplot2::ylab("missing pattern") +	
+    ggplot2::guides(fill = "none", alpha = "none") +	
+    ggplot2::theme_classic(12) + 
+    ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) #MODIFICATION
+    #ggplot2::theme(axis.text.y = element_text(angle = 90, vjust = 0.5, hjust=1)) #MODIFICATION
+  
+  # check for "none missing" pattern
+  none_missing_pattern <- na_count_by_pattern %>%
+    dplyr::filter(.data$none_missing) %>% dplyr::pull(.data$pattern)
+  
+  if (length(none_missing_pattern) > 0) {	
+    main_plot <- main_plot +	
+      ggplot2::annotate("text", x = (ncol(na_count_all)-2)/2,	
+               y = nrow(na_count_all) + 1 - as.numeric(as.character(none_missing_pattern)),	
+               label = "complete cases")	
+  }	
+  
+  # margin plots
+  denom <- ifelse(percent, nrow(x)/100, 1)
+  
+  missing_by_column_plot <- ggplot2::ggplot(na_count_by_column, ggplot2::aes(forcats::fct_inorder(.data$var), .data$count/denom)) +	
+    ggplot2::geom_col(fill = "cornflowerblue", alpha = .7) +
+    ggplot2::scale_y_continuous(expand = c(0, 0), n.breaks = 3) +	
+    ggplot2::xlab("") +
+    ggplot2::ylab(ifelse(percent, "% rows \n missing:", "num rows \n missing:")) +	
+    ggplot2::theme_linedraw(12) + #modify	
+    ggplot2::theme(panel.grid.major.x = ggplot2::element_blank(),	
+          panel.grid.minor.x = ggplot2::element_blank()) +
+    ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + #MODIFICATION
+    ggplot2::theme(axis.text.y = element_text(size = 8)) #MODIFICATION
+  
+  missing_by_pattern_plot <- 
+    ggplot2::ggplot(na_count_by_pattern, ggplot2::aes(.data$pattern, .data$count/denom, alpha = .data$none_missing)) +
+    ggplot2::geom_col(fill = "cornflowerblue") +
+    ggplot2::coord_flip() +
+    ggplot2::scale_y_continuous(expand = c(0, 0), n.breaks = 3) +
+    ggplot2::scale_alpha_manual(values = c(.7, 1)) +
+    ggplot2::xlab("") +
+    ggplot2::ylab(ifelse(percent, "% rows", "row count")) +
+    ggplot2::guides(alpha = "none") +
+    ggplot2::theme_linedraw(12) +
+    ggplot2::theme(panel.grid.major.y = ggplot2::element_blank(), 
+          panel.grid.minor.y = ggplot2::element_blank())
+  
+  if (percent) {	
+    missing_by_column_plot <- missing_by_column_plot +
+      ggplot2::scale_y_continuous(expand = c(0, 0), n.breaks = 5,
+                         limits = c(0, 100))	
+    missing_by_pattern_plot <- missing_by_pattern_plot +
+      ggplot2::scale_y_continuous(expand = c(0, 0), n.breaks = 5,
+                         limits = c(0, 100))	
+  }	
+  
+  missing_by_column_plot + patchwork::plot_spacer() + 	
+    main_plot + missing_by_pattern_plot + 	
+    patchwork::plot_layout(widths = c(4, 1), heights = c(1, 1))
+}
+```
+
+```{r}
+#lv <- missing_data.frame(df_orig)
+#levels(lv@patterns)
+```
+
+```{r, fig.align = 'center', fig.width=100%}
+plot_missing2(df_orig, percent = TRUE)
+```
+
+```{r, fig.align = 'center', fig.width=100%}
+# Plotting Minutes Played
+df_orig2 = df_orig
+df_orig2$Cost <- as.numeric(df_orig$Cost)
+df_orig2$TotalPoints <- as.numeric(df_orig$TotalPoints)
+df_orig2$PointsLastRound <- as.numeric(df_orig$PointsLastRound)
+df_orig2$MinutesPlayed <- as.numeric(df_orig$MinutesPlayed)
+
+df_orig2$Week <- as.numeric(df_orig$Week)
+
+player_histogram <- df_orig2 %>%
+  filter((Week == 37 & Season %in% c(2017, 2018, 2020, 2021)) |
+         (Week == 35 & Season == 2019)) %>%
+  mutate(avg_min_played = MinutesPlayed/Week) %>%
+  select(Surname, avg_min_played)
+
+ggplot(player_histogram, aes(avg_min_played)) +
+  geom_histogram(binwidth = 1,
+  fill="#0072B2", color="black") + #colorblind friendly
+  scale_x_continuous(breaks = seq(0, 100, by=5)) +
+  ggtitle("Player Count over Average Minutes Played") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r, fig.align = 'center', fig.width=100%}
+# Preprocess and Filtering
 # Filter for end of Season and Players with more than 74 points
 PointCost <- df_orig[df_orig$Week == 37,]
 d <- filter(PointCost, MinutesPlayed/37 >= 45)
@@ -119,6 +232,38 @@ fwd <- d %>%
 d <- rbind(def, mid, fwd)
 ```
 
+```{r}
+#EF: this is a dataframe of the team name, team full name, and 
+#    end position in 2021-2022 premier league table, and images
+
+Place <- c(5, 14, 13, 9, 18, 3, 12, 16, 17, 8, 2, 1, 6, 11, 20, 15, 4, 19, 7, 10)
+
+Team <- c("ARS", "AVL", "BHA", "BRE", "BUR", "CHE", "CRY", "EVE", "LEE", "LEI", 
+          "LIV", "MCI", "MUN", "NEW", "NOR", "SOU", "TOT", "WAT", "WHU", "WOL")
+
+Team_name_full <- c("ARSENAL", "ASTON VILLA", "BRENTFORD", "BRIGHTON & HOVE ALBION", 
+                    "BURNLEY", "CHELSEA", "CRYSTAL PALACE", "EVERTON", "LEEDS UNITED", 
+                    "LEICESTER CITY", "LIVERPOOL", "MANCHESTER CITY", "MANCHESTER UNITED", 
+                    "NEWCASTLE UNITED", "NORWICH CITY", "SOUTHAMPTON", "TOTTENHAM HOTSPUR", 
+                    "WATFORD", "WEST HAM UNITED", "WOLVERHAMPTON WANDERERS")
+
+# EF: Do Not USE
+# Logo <- list( image_read("Workspace/emf_images/ARS.png"), image_read("Workspace/emf_images/AVL.png"),
+#              image_read("Workspace/emf_images/BHA.png"), image_read("Workspace/emf_images/BRE.png"), 
+#              image_read("Workspace/emf_images/BUR.png"), image_read("Workspace/emf_images/CHE.png"), 
+#              image_read("Workspace/emf_images/CRY.png"), image_read("Workspace/emf_images/EVE.png"), 
+#              image_read("Workspace/emf_images/LEE.png"), image_read("Workspace/emf_images/LEI.png"), 
+#              image_read("Workspace/emf_images/LIV.png"), image_read("Workspace/emf_images/MCI.png"), 
+#              image_read("Workspace/emf_images/MUN.png"), image_read("Workspace/emf_images/NEW.png"), 
+#              image_read("Workspace/emf_images/NOR.png"), image_read("Workspace/emf_images/SOU.png"), 
+#              image_read("Workspace/emf_images/TOT.png"), image_read("Workspace/emf_images/WAT.png"), 
+#              image_read("Workspace/emf_images/WHU.png"), image_read("Workspace/emf_images/WOL.png"))
+
+
+Logo <- list.files(path="Data/emf_images", pattern="*.png")
+image = paste0("Data/emf_images", "/", Logo)
+df_2021_team_key <- data.frame(Place, Team_name_full, Team, image)
+```
 
 ```{r, fig.align = 'center', fig.width=100%}
 # Plot Total Points against Cost
@@ -134,7 +279,16 @@ ggplot(d, aes(x=Cost, y=TotalPoints)) +
   scale_color_colorblind() +
   theme(plot.title = element_text(hjust = 0.5))
 ```
-
+```{r, fig.align = 'center', fig.width=100%}
+d %>%
+  ggplot(aes(SelectedByPercent, PointPerCost)) + 
+  geom_point(alpha=0.3) +
+  xlab("Selected By Percentage") + 
+  ylab("Total Points per Cost") + 
+  ggtitle("Total Points Per Cost versus Percentage Selected") + 
+  scale_x_continuous(breaks = seq(0, 60, by=10)) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
 
 ```{r, fig.align = 'center', fig.width=100%}
 #Selected By % Plot
@@ -145,7 +299,7 @@ ggplot(d, aes(x=SelectedByPercent, y= 100*(..count..)/sum(..count..))) +
   xlab("Selected By %") +
   theme_light() +
   scale_color_colorblind() +
-  ggtitle("NEEDS TITLE") +
+  ggtitle("Relavtive Frequency over Selected-By Percentage") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
@@ -338,8 +492,6 @@ ggplot(delta_bar, aes(reorder(Team, Place), cost_pts, fill=sub_group)) +
 ```
 
 
-
-
 ```{r}
 # look at the greatest value change players over the season
 gc_w0 <- df_2021 
@@ -481,9 +633,28 @@ ggplot(df_2021, aes(Week, player_id)) +
   geom_tile(aes(fill = PointsLastRound)) +
   ylab("Players") +
   labs(fill = "Points that Week") +
-  scale_fill_gradient(low = "white", high = "red" , limits=c(0,10))+
+  scale_fill_gradient(low = "white", high = "blue" , limits=c(0,10))+
   theme_classic() +
   theme(axis.text.y=element_blank())
 
+```
+```{r, fig.align = 'center', fig.width=100%}
+# cleveland dot plot
+df_cleveland = df_orig %>% filter(Season != 2019)
+
+df_cleveland %>%
+  group_by(Team, Season) %>%
+  summarise(TotalPoints = n()) %>%
+  ggplot(aes(x = TotalPoints,
+             y = fct_reorder2(Team, Season == 2021, TotalPoints, .desc = FALSE),
+             color = factor(Season))) +
+    geom_point() +
+    ggtitle("Teams with the Most Points") +
+    scale_colour_manual(values = c("#E69F00", "#009E73", "#0072B2", "#CC79A7")) + #colorblind friendly
+    xlab("Total Points") +
+    ylab("") +
+    labs(color="Season") +
+    theme_linedraw() +
+    theme(plot.title = element_text(hjust = 0.5))
 ```
 
