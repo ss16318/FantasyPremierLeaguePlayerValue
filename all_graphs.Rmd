@@ -604,9 +604,10 @@ pc_graph_2021_beg <- df_2021_top_beg %>%
   arrange(Week, Surname)
 ```
 
-
 ```{r, fig.align = 'center', fig.width=100%}
-g1 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=SelectedByPercent, group = Surname, colour=factor(Surname))) +
+
+label1<- factor(pc_graph_2021_beg$Surname, levels=c("Salah", "Kane", "Ronaldo", "De Bruyne", "Fernandes", "Lukaku", "Mane"))
+g1 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=SelectedByPercent, group = Surname, colour=label1)) +
   scale_y_continuous(limits = c(0,75), breaks = seq(0,100,10), labels = label_number(suffix = "%")) +
   scale_x_continuous(breaks = seq(0,38,1)) +
   geom_line() +
@@ -615,11 +616,13 @@ g1 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=SelectedByPercent, group = Surname
   ylab("PercentageBy") + xlab("Game Week") +
   theme_light() +
   theme(axis.text.x = element_text(size = 7, angle=45)) +
-  scale_colour_colorblind() +
+  scale_colour_manual(values = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00")) +
   ggtitle("Highest Cost Players of 2021 Season") +
   theme(plot.title = element_text(hjust = 0.5)) 
 
-g2 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=Cost, group = Surname, colour=factor(Surname))) +
+label2<- factor(pc_graph_2021_beg$Surname, levels=c("Salah", "Kane", "Ronaldo", "De Bruyne", "Mane", "Fernandes", "Lukaku"))
+colors<- c("red","red","red","red","red","red","red")
+g2 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=Cost, group = Surname, colour=label2)) +
   scale_y_continuous(limits = c(11400000, 13300000), breaks = seq(11500000,13500000,500000), labels = label_number(suffix = "", scale = 1e-6)) +
   scale_x_continuous(breaks = seq(0,38,1)) +
   geom_line() +
@@ -628,11 +631,13 @@ g2 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=Cost, group = Surname, colour=fact
   ylab("Cost") + xlab("Game Week") +
   theme_light() +
   theme(axis.text.x = element_text(size = 7, angle=45)) +
-  scale_colour_colorblind()
+  #scale_colour_colorblind()
+  scale_colour_manual(values = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#F0E442", "#0072B2"))
 
 plot_grid(g1, g2, ncol = 1)
 
 ```
+
 ```{r, fig.align = 'center', fig.width=100%}
 
 df_2021 <- df_2021 %>%

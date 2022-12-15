@@ -156,7 +156,7 @@ To understand relationship between the total points scored in a season and the s
 
 In the graph, there is no clear trend showing that the number of points a player scores in a season depends on the year. In other words, in further analysis we may assume that soccer player performance statistics are time-independent. Further, it must be noted that the 2019 analysis has been excluded from the plot as the final week of the season was missing from the data source (as discussed in the missing data analysis).  
 
-A final point to add about the graph is the fact that the best fit line, calculated using a loess smoothing, shows the gradient is steeper before £6 million and shallower after. This indicates that there could be an element of diminishing reuturns of value when choosing more expensive soccer players. 
+A final point to add about the graph is the fact that the best fit line, calculated using a loess smoothing, shows the gradient is steeper before £6 million and shallower after. This indicates that there could be an element of diminishing returns of value when choosing more expensive soccer players.
 
 ```{r, fig.align = 'center'}
 # Plot Total Points against Cost
@@ -222,7 +222,7 @@ p1 + p2 + p3 + guide_area() + plot_layout(ncol = 2, guides = "collect") + plot_a
 
 **How Different Players Score Points**
 
-From our analysis so far, we have found that the median point per cost does not vary much across position. We have also found that forwards are less likely to be undervalued but also less likely to be overvalues, while it is the opposite for defenders. With this in mind, our next question looks to identify what traits one should look for when determining the value of defenders, midfielders and forwards. 
+From our analysis so far, we have found that the median point per cost does not vary much across position. We have also found that forwards are less likely to be undervalued but also less likely to be overvalued, while it is the opposite for defenders. With this in mind, our next question looks to identify what traits one should look for when determining the value of defenders, midfielders and forwards. 
 
 In the parallel coordinates plot, we see that there are 3 distinct clusters for how soccer players score points and these clusters follow position categories. With defenders, we see that they score few points from goals and assists, but a lot of points from having clean sheets (a clean sheet occurs when a team does not concede a goal during a game). Looking at midfielders and forwards, we see that most of their points come from goals and assists. Moreover, in terms of clean sheets for midfielders, they get relatively few and for forwards they get zero points from clean sheets (which is explained as forwards cannot score points from clean sheets). Focusing on bonus points, we have no evidence suggesting that certain positions score more bonus points than others. This leads us to the conclusion that it is best to evaluate defenders based on clean sheets, while we should judge midfielders and forwards based on goals and assists. 
 
@@ -265,7 +265,7 @@ ggplot(d, aes(x=SelectedByPercent, y= 100*(..count..)/sum(..count..))) +
   xlab("Selected By %") +
   theme_light() +
   scale_color_colorblind() +
-  ggtitle("Relavtive Frequency against Selected By Percentage") +
+  ggtitle("Relative Frequency against Selected By Percentage") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
@@ -328,10 +328,9 @@ In the ridge graph above, we plotted the distribution of soccer player cost in F
 
 For clarity, we ordered the teams in the ridge graph by their record at the end of the 2021 season, with MCI finishing in first, and BUR finishing at the bottom. An important feature of the English Premier League is that the worst three teams are kicked out at the end of the season. So, while the top teams are competing to win the league, the bottom teams are fighting to avoid being demoted. For consistency, we chose to include only the teams which played in the league every year between 2017 and 2021.
 
-What we see in the graph is reflective of reality, that the soccer players on the bottom of the bottom teams are mostly concentrated around a mean of £4-5 million, but as you climb up the board, the mean shifts to between £5-6 million, and the tails get longer and longer. In fact, the top performing teams appear to have multi-modal distributions in which subsets of their are very expensive.
-Using the previous analysis that the the best soccer players cost the most, this follows the claim that the best performing soccer teams have the best performing soccer players.
+What we see in the graph is reflective of reality, that the soccer players on the bottom of the bottom teams are mostly concentrated around a mean of £4-5 million, but as you climb up the board, the mean shifts to between £5-6 million, and the tails get longer and longer. In fact, the top performing teams appear to have multi-modal distributions in which subsets of their team are very expensive; the top performing teams have multiple high cost superstars. Using the previous analysis that the the best soccer players cost the most, this follows the claim that the best performing soccer teams have the best performing soccer players who also cost the most.
 
-Overall, we see that there is a clear association between teams with higher records and Cost of soccer players on those teams. Given the winning teams are those that score more a lot of goals and do not concede many, it’s not surprising that fantasy points, and thus Cost are concentrated on those teams. 
+Overall, we see that there is a clear association between teams with higher records and Cost of soccer players on those teams. Given the winning teams are those that score more a lot of goals and do not concede many, it’s not surprising that fantasy points, and thus Cost are concentrated on those teams.
 
 https://theathletic.com/3476123/2022/08/10/premier-league-wages-growth-tax-top-earners/
 
@@ -531,7 +530,7 @@ As discussed earlier, the strategy in winning FPL lies in being able to find the
 
 In all, there was far less movement in player Cost than anticipated. For the past three seasons, the top 10 highest Cost players at the beginning of the season were also the top 10 highest Cost players at the end of the season, indicating that player costs to not vary too much.  
 
-Qunatifying this, we found that about 75% of players have Costs which vary less than +/- £200,000 over the course of the entire season. As such, we decided to graph the “Costs” of players over the 2021 season whose price went up or down by £300,000 or more. 
+Quantifying this, we found that about 75% of players have Costs which vary less than +/- £200,000 over the course of the entire season. As such, we decided to graph the “Costs” of players over the 2021 season whose price went up or down by £300,000 or more. 
 
 On the first chart, we see soccer players that experienced a cumulative Cost decrease of £300k, or more, from their original pricing at any point during the season. As you might notice, there is a large drop in Week 1 for almost every player. For background research, FPL users choose their team during the summer, before any soccer games have been played. As such, soccer player Costs when initially chosen are based on last year’s performance. The large swing in Costs in Week 1 can be interpreted as users reacting to the first week of games of the current season. 
 
@@ -583,9 +582,9 @@ In all we can confidently conclude that players who experience a large drop in C
 
 ## Correlation Between Cost & Selected By Percentage
 
-Another angle we approached the project question from was trying to find a pattern with Selected By Percentage because if we find soccer players that aren't picked by many FPL users, we could benefit more from their points. 
+Another angle we approached the project question from was trying to find a pattern with Selected By Percentage because if we find soccer players that aren't picked by many FPL users, we could benefit more from their points (since if you pick a player that everyone else has, everyone is benefited and it does not help you get ahead to win). Therefore, we decided to plot a scatter plot of total points against Selected By Percentage to explore any potential trends. From the initial interpretation of the graph we find weak relationship between Selected By Percentage and Total Points per Cost, those who are highest selected also were more likely to have a higher Total Points per Cost, and this is unsurprising since only enthusiasts and die-hard fans of the sport play the Fantasy game, it is very likely that they have a good intuition for who are value picks, or perhaps the competitive nature of the game would even push some to perform numerical analysis, much like what we are doing right now. From the graph one can see that there are many points with high Total Point per Cost and low Selected By Percentage, which means that there are many good value player who remain less selected and are not as well identified to the fan base.
 
-From our research, we found that Selected By Percentage is a driver of player cost. For example, if a lot of FPL users choose a soccer player, his demand is high, so his Cost increases. Therefore, we decided to plot a scatter plot of total points against Selected By Percentage to explore any potential trends. However, as can be seen in the graph, there is no obvious pattern in the data. 
+From our contextual and outside-of-the-data research, we found that Selected By Percentage is a driver of player cost. Therefore, since the graph does not consider the kinetics of the cost and the Total Points per Cost plotted is an average over the season, and the player could be selected anytime, the graph ultimately is not very insightful.
 
 ```{r, fig.align = 'center'}
 d %>%
@@ -599,7 +598,9 @@ d %>%
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-However, when plotting the weekly change in cost of the top 7 most expensive players in FPL during 2021 next to the weekly Selected By Percentage of these soccer players by FPL users, we see evidence of correlations between the two. For example, in Week 23 we see the Cost and Selected By Percentage of dip, while we see a peak for Ronaldo. With this in mind, one avenue of further work could look into the correlation between total points and Selected By Percentage because we know there is a positive correlation between total points and cost and there may be another positive correlation between cost and Selected By Percentage. Therefore, an indicator for player value could be a ratio between Selected By Percentage and Total Points 
+So to explorer the relationship between Cost and Percentage Selected By over time, both variables are plotted against time in Game Week on a shared interval x-axis. When plotting the weekly change in cost of the top 7 most expensive players in FPL during 2021 next to the weekly Selected By Percentage of these soccer players by FPL users, we see evidence of correlations between the two, as week where the Cost goes up, the Percentage Selected By also goes up. This is very interesting as since if the Selected By is on the weekly basis impacted by cost, we would expect a rising cost to not increase the Percentage By rate, or even decreasing the picked by rate, but this was not observed, both the Cost and Pertage By went up at the same time, meaning that a soccer player could have done well, so his cost went up, but people also wanted said player on the team by the Fear of Missing Out (FOMO) Effect, so despite an increasing cost, said player is also picked more in anticipation for future good performances. The Cost and Percentage By also showed minimal "phase lag" behavior where one increase/decrease will cause another to increase/decrease a week or two later, hinting that while both variables may be positively correlated, they may also be confounding to a third variable at the same time.
+
+With this in mind, one avenue of further work could look into the correlation between average points per week up to the current week and Selected By Percentage with respective to time for all 37 weeks to see how the selection rate is impacted by marginal weekly performance.
 
 ```{r}
 # Top Players at beginning
@@ -621,20 +622,23 @@ pc_graph_2021_beg <- df_2021_top_beg %>%
 
 ```{r, fig.align = 'center'}
 
-g1 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=SelectedByPercent, group = Surname, colour=factor(Surname))) +
+label1<- factor(pc_graph_2021_beg$Surname, levels=c("Salah", "Kane", "Ronaldo", "De Bruyne", "Fernandes", "Lukaku", "Mane"))
+g1 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=SelectedByPercent, group = Surname, colour=label1)) +
   scale_y_continuous(limits = c(0,75), breaks = seq(0,100,10), labels = label_number(suffix = "%")) +
   scale_x_continuous(breaks = seq(0,38,1)) +
   geom_line() +
   geom_point(size=1.5, alpha = 0.75, stroke = 0) +
   labs(colour = "Player") +
-  ylab("Selected By Percentage") + xlab("Game Week") +
+  ylab("PercentageBy") + xlab("Game Week") +
   theme_light() +
   theme(axis.text.x = element_text(size = 7, angle=45)) +
-  scale_colour_colorblind() +
+  scale_colour_manual(values = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00")) +
   ggtitle("Highest Cost Players of 2021 Season") +
   theme(plot.title = element_text(hjust = 0.5)) 
 
-g2 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=Cost, group = Surname, colour=factor(Surname))) +
+label2<- factor(pc_graph_2021_beg$Surname, levels=c("Salah", "Kane", "Ronaldo", "De Bruyne", "Mane", "Fernandes", "Lukaku"))
+colors<- c("red","red","red","red","red","red","red")
+g2 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=Cost, group = Surname, colour=label2)) +
   scale_y_continuous(limits = c(11400000, 13300000), breaks = seq(11500000,13500000,500000), labels = label_number(suffix = "", scale = 1e-6)) +
   scale_x_continuous(breaks = seq(0,38,1)) +
   geom_line() +
@@ -643,9 +647,10 @@ g2 <- ggplot(pc_graph_2021_beg, aes(x=Week, y=Cost, group = Surname, colour=fact
   ylab("Cost") + xlab("Game Week") +
   theme_light() +
   theme(axis.text.x = element_text(size = 7, angle=45)) +
-  scale_colour_colorblind()
+  #scale_colour_colorblind()
+  scale_colour_manual(values = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#F0E442", "#0072B2"))
 
-plot_grid(g1, g2, ncol = 1)
+plot_grid(g2, g1, ncol = 1)
 
 ```
 

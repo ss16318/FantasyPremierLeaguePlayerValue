@@ -130,18 +130,22 @@
 <h1><span class="header-section-number">Chapter 3</span> Data<a href="data.html#data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <div id="sources" class="section level2 hasAnchor" number="3.1">
 <h2><span class="header-section-number">3.1</span> Sources<a href="data.html#sources" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Source: <a href="http://fantasyoverlord.com/FPL/History" class="uri">http://fantasyoverlord.com/FPL/History</a>
-Season stats for 2016 to 2021 season</p>
+<p>As described in Section 2.2 Data Availability, all available CSV files of athletes’ performance for any week in Seasons 2017, 2018, 2019, 2020, and 2021 can be found in the link below. All data downloaded for use can also be found in the Data folder.</p>
+<p>Source: <a href="http://fantasyoverlord.com/FPL/History" class="uri">http://fantasyoverlord.com/FPL/History</a></p>
 </div>
 <div id="cleaning-transformation" class="section level2 hasAnchor" number="3.2">
 <h2><span class="header-section-number">3.2</span> Cleaning / transformation<a href="data.html#cleaning-transformation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>The code we used for data cleaning and transformation can be seen in the “combine_data.Rmd” file. Our data for each season is parsed across one file for each week, as such the first step in our transformation process was to compile all of the weeks and seasons into one dataset.</p>
-<p>The `import_columns’ list shows the variables from each weekly data set that we compiled. In lines 32-47, we loop through each file, retain the desired columns, and append the observations to a master dataframe. From the filename of each weekly data set, we added a match week (‘Week’) column, as well as distinguished the season (‘Year’). Lastly, we converted fields from strings to numerics for later calculations.</p>
+<p>The code we used for data cleaning and transformation can be viewed in the “combine_data_v2.Rmd” file. Our data for each season is parsed across one file for each week, as such the first step in our transformation process was to compile all of the weeks and seasons into one dataset.</p>
+<p>The `import_columns’ list shows the variables from each weekly data set that we compiled. In lines 32-47, we loop through each file, retain the desired columns, and append the observations to a master dataframe. From the filename of each weekly data set, we added a match week (‘Week’) column, as well as distinguished the season (‘Year’). Lastly, we converted field types of numerical fields from strings to numerics for use and later calculations.</p>
+<p>The resulting dataframe is saved as a .CSV in Data/main with the name “master.csv.”</p>
+<p>[maybe talk about the filter cut and the point caculation here]</p>
 </div>
 <div id="missing-value-analysis" class="section level2 hasAnchor" number="3.3">
 <h2><span class="header-section-number">3.3</span> Missing value analysis<a href="data.html#missing-value-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-50-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-53-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>With all CSV files imported, merged, and verified for tidy, we know what an ideal dataset should look like – a dataframe with where observations of athlete performance should exists for every season between 2017 and 2021 for every week in those seasons. We then proceed to visualize the availability of our data over each season and week by showing tiles where they exist, so we can have an understanding of the distribution of observations over Season and Week. In the graph show, we can see that we can missing a few select seemingly random weeks in 2019 and 2020, but in 2019 we also observe that there is a missing pattern where every week after 32, with the exception of 35, is missing. Taking the data to context, one can realize that the missing data from the end of the 2019 season is due to the emergence of Covid-19. With knowledge of what weeks we are missing, we proceed forward in the analysis.</p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Leveraging the source code of the “plot_missing” function for modification, the missing patterns in the dataset is plotted, showing the affected variables and the percent rows and percent rows missing. We find that about 90% of the data is complete and fully populated. Out of the last 10%, all of them are missing the entry for the first name of the players, and an indiscernible small number of rows are showing a missing pattern of missing YellowCards, CleanSheets, Assists, SelectedByPercent, OwnGoals, MinutesPlayed, and RedCards. Since the first names of the players present little value when the last names are present (since last names in the premier league are usually unique), the data we have on the weeks where available are effectively fully complete for the purpose of our analysis.</p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
 
 </div>
 </div>

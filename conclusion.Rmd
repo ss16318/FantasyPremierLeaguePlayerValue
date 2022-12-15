@@ -1,2 +1,13 @@
 # Conclusion
+```{r}
+# NEED 1/2 to 1 page here
+# main takeaways of your exploration, limitations, future directions, lessons learned.
+```
 
+[MAIN TAKEAWAYS]
+
+[LIMITATIONS]
+
+[FUTURE DIRECTIONS]
+
+[LESSONS LEARNED]
