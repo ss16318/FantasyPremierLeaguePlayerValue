@@ -428,7 +428,7 @@ delta_bar <- rbind(df_2021_tp_5, df_2021_tp_10)
 remove(tp_5_each_team, tp_10_each_team)
 ```
 
-**How about Cost per Point for Teams? **
+**How about Points per Cost for Teams? **
 
 While the previous ridge line plot clearly indicates that players on better teams cost more in FPL, we want to ask the question *“Is the higher cost of players on winning teams justified in terms of producing fantasy points?”* 
 
