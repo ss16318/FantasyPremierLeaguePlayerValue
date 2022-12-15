@@ -15,13 +15,32 @@
   </head>
   <body>
     <div>
-      <h3>Title </h3>
-      <p>Some text</p>
+      <h3>Total Points in a Season Against Player Cost</h3>
+      
+      <p>In the following graph, we have replotted the Total Cost against Player Cost data shown in the results section; however, we have added interacitve features to the graph. The main           feature added to this graph is the ability to filter by position. When clicking on one of the radio buttons, for example "Defenders Only", all the data points representing  
+          defenders will turn red and become slightly larger. Furthermore, the linear best fit line will be calculated using only defender data. The same can be seen when filtering by
+          midfielders and forwards. When choosing the "No Position Filter" option, none of the data points are highlighted and the linear best fit line uses all the data points. </p>
+          
+      <p> When using this filter and interpretting these results several discoveries are made. The first being the fact that defenders are typically the cheapest and forwards the most
+          expensive, as is also shown in the boxplots. Moreover, the defenders appear strongly clustered, while midfielders and forwards appear to be less clustered. In fact, it appears
+          that defenders are limited to costing £9 million and scoring 220 points. Further, we see that defenders have the steepest best fit line, while midfiedlers and forwards have a
+          shaloower line, which provides insight into the changing of gradient pattern observed in the previous static scatter plot of this data. </p>
+          
+      <p> Translating these results to soccer player value, we can conclude that defenders have a higher point per cost than midfiedlers and forwards. However, as defenders do not score
+          more than 220 points, only midfielders and forwards may be considered when choosing the most valuable and high scoring players. </p>
+          
+      <p> Finally, a second interacitve feature has been included in the graph, which allows viewers to hover over data points and see the player name, team and season. This feature 
+          is useful in indefying specific player trends across seasons. For example, if you hover over the 3 dots in the upper right corner of the graph, you will see that all of these
+          data points correspond a Salah's total points and cost. This shows that Salah consistently scores a lot of points and has a high cost in fantasy. This is useful information
+          because it shows that Salah constistently scores a lot of points in fanstasy. So of the more expensive players in FPL, he is a safer bet to get points and hence is valuable. <br>
+          </p>
+      
+      <p> Choose your filter:</p>
       
       <input type="radio" name="Position" value="All" checked="true">No Position Filter
-      <input type="radio" name="Position" value="Def">Defenders
-      <input type="radio" name="Position" value="Mid">Midfielders
-      <input type="radio" name="Position" value="Fwd">Forwards
+      <input type="radio" name="Position" value="Def">Defenders Only
+      <input type="radio" name="Position" value="Mid">Midfielders Only
+      <input type="radio" name="Position" value="Fwd">Forwards Only
       
       
     </div>
@@ -29,7 +48,7 @@
       
       //Width and height
       const w = 700;
-      const h = 300;
+      const h = 500;
       const margin = {top: 25, right: 100, bottom: 50, left: 100};
       const innerHeight = h - margin.top - margin.bottom;
       const innerWidth = w - margin.left - margin.right;
@@ -39,6 +58,7 @@
         console.log(dataset);
         
         dataset.forEach(d => d.Cost = d.Cost / 1000000);
+        dataset.forEach(d => d.TotalPoints = d.TotalPoints / 1);
     
     
         // ADD: create scales
@@ -77,21 +97,21 @@
           .attr("height", h)
           .attr("fill", "aliceblue");
   
-      
-  
-        // create caption
-        d3.select("body")
-          .append("div")
-          .style("padding", "10px")
-          .append("a")
-          .attr("href", "https://www.weather.gov/documentation/services-web-api")
-          .text("A hyperlink");
   
         // ADD: create plot group
         
         svg.append("g")
           .attr("id", "plot")
           .attr("transform", `translate (${margin.left}, ${margin.top})`);
+          
+          svg.select("g#plot")
+          .append("line")
+          .attr('x1', xScale(4))
+          .attr('y1', yScale(58.8))
+          .attr('x2', xScale(11.6))
+          .attr('y2', yScale(300))
+          .attr('stroke', 'red')
+          .attr('stroke-width', 2)
 
   
         // ADD: create circles
@@ -102,25 +122,41 @@
           .append("circle")
           .attr("cx", d => xScale(d.Cost))
           .attr("cy", d => yScale(d.TotalPoints))
-          .attr("r", 2)
+          .attr("r", 1.5)
           .attr("fill", "black")
           .attr("id" , d => d.PositionsList)
           .classed("Pos" , d => d.PositionsList)
           .on("mouseover", function(event, d) {
-            //var xcoord = d3.select(event.currentTarget).attr("cx") + 5
-            //var ycoord = d3.select(event.currentTarget).attr("cy") - 5
             svg.select("g#plot")
             .append("text")
-            .attr("id", "tooltip")
+            .attr("id", "tooltip1")
             .attr("x", 10)
             .attr("y", 10)
             .style('fill', 'Black')
-            .text( "Name: " + d.Surname + " (" + d.Season + " Season)")
+            .text( "Name: " + d.Surname )
+            
+            svg.select("g#plot")
+            .append("text")
+            .attr("id", "tooltip2")
+            .attr("x", 10)
+            .attr("y", 22)
+            .style('fill', 'Black')
+            .text( "Season: " + d.Season )
+            
+            svg.select("g#plot")
+            .append("text")
+            .attr("id", "tooltip3")
+            .attr("x", 10)
+            .attr("y", 33)
+            .style('fill', 'Black')
+            .text( "Team: " + d.Team )
             
             
           })
           .on("mouseout", function() {
-            d3.select("#tooltip").remove();
+            d3.select("#tooltip1").remove();
+            d3.select("#tooltip2").remove();
+            d3.select("#tooltip3").remove();
             
           }
           );
@@ -170,18 +206,25 @@
               var Position = event.currentTarget.value; 
               if (Position == "Def") {
                     
-              // update cx value of circles
+              // update color value of circles
                   svg.selectAll("circle#DEF")
                     .attr("fill", 'red')
                     .attr("r", 2.5)
                     
                   svg.selectAll("circle#MID")
                     .attr("fill", 'black')
-                    .attr("r", 2)
+                    .attr("r", 1.5)
 
                   svg.selectAll("circle#FWD")
                     .attr("fill", 'black')
-                    .attr("r", 2)
+                    .attr("r", 1.5)
+                    
+                  svg.select("line")
+                    .transition()
+                    .duration(3000)
+                    .attr("x2", xScale(7.94))
+                    .atrr("y1", yScale(26.4))
+                    
               }
               
               else if (Position == "Mid") {
@@ -193,33 +236,52 @@
 
                   svg.selectAll("circle#DEF")
                     .attr("fill", 'black')
-                    .attr("r", 2)
+                    .attr("r", 1.5)
                     
                   svg.selectAll("circle#FWD")
                     .attr("fill", 'black')
-                    .attr("r", 2)
+                    .attr("r", 1.5)
+                    
+                  svg.select("line")
+                    .transition()
+                    .duration(3000)
+                    .attr("x2", xScale(12.18))
+                    .atrr("y1", yScale(43.6))
               }
               
               else if (Position == "Fwd") {
                     
-              // update cx value of circles
+              // update color value of circles
                   svg.selectAll("circle#FWD")
                     .attr("fill", 'red')
                     .attr("r", 2.5)
                   
                   svg.selectAll("circle#DEF")
                     .attr("fill", 'black')
-                    .attr("r", 2)
+                    .attr("r", 1.5)
                   
                   svg.selectAll("circle#MID")
                     .attr("fill", 'black')
-                    .attr("r", 2)
+                    .attr("r", 1.5)
+                    
+                  svg.select("line")
+                    .transition()
+                    .duration(3000)
+                    .attr("x2", xScale(14.26))
+                    .atrr("y1", yScale(41.6))
+                    
               }
               
               else{
                 svg.selectAll("circle")
                     .attr("fill", 'black')
-                    .attr("r", 2)
+                    .attr("r", 1.5)
+                    
+                svg.select("line")
+                    .transition()
+                    .duration(3000)
+                    .attr("x2", xScale(11.6))
+                    .atrr("y1", yScale(48.8))
               };
                              
 

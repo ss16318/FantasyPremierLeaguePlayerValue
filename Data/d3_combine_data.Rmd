@@ -18,7 +18,7 @@ d3Data <- df %>%
 d3Data$player_id[d3Data$player_id == 'Davies_Ben_DEF' & d3Data$Team == 'TOT'] <- 'Davies_Ben_DEF_TOT'
 
 d3Data <- d3Data %>%
-  select("player_id", "FirstName", "Surname", "PositionsList", "Team", "Cost", "TotalPoints")
+  select("player_id", "FirstName", "Surname", "PositionsList", "Team", "Cost", "TotalPoints", "Season")
 
 write.csv(d3Data, "D3Data.csv", row.names = FALSE)
 
@@ -26,126 +26,11 @@ write.csv(d3Data, "D3Data.csv", row.names = FALSE)
 
 ```
 
-write.csv(df_main, "Data/main/master.csv", row.names = FALSE)
-
-
-```
-
-
-```{r, fig.align = 'center'}
-
-#Creates Points per Cost column and adds levels to positions
-d <- d %>% 
-   mutate(PointPerCost = TotalPoints / Cost) %>%
-   mutate(PositionsList =factor(PositionsList, levels=c("DEF", "MID", "FWD")))
-
-#Find averages for TotalPoints, Cost and PointsPerCost
-averagePPC <- mean(d$PointPerCost)
-averagePoints <- mean(d$TotalPoints)
-averageCost <- mean(d$Cost)
-
-#Boxplot for Points
-p1 <- ggplot(d, aes(x=PositionsList, y=TotalPoints)) + 
-  geom_boxplot(outlier.size=0.9) +
-  xlab("Poistion") + 
-  ylab("Total Points") +
-  geom_hline(aes(yintercept= averagePoints, linetype = "Average Points"), colour= 'blue') +
-  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("blue")))) +
-  theme_light() +
-  scale_color_colorblind()
-
-#Boxplot for Cost
-p2 <- ggplot(d, aes(x=PositionsList, y=Cost)) + 
-  geom_boxplot(outlier.size=0.9) +
-  xlab("Poistion") + 
-  ylab("Cost") +
-  geom_hline(aes(yintercept= averageCost, linetype = "Average Points"), colour= 'deeppink') +
-  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("purple")))) +
-  theme_light() +
-  scale_color_colorblind()
-
-#Boxplot for Points per Cost
-p3 <- ggplot(d, aes(x=PositionsList, y=PointPerCost)) + 
-  geom_boxplot(outlier.size=0.9) +
-  xlab("Poistion") + 
-  ylab("Total Points per Cost") +
-  geom_hline(aes(yintercept= averagePPC, linetype = "Average Points per Cost"), colour= 'red') +
-  scale_linetype_manual(name = "", values = c(2, 2), guide = guide_legend(override.aes = list(color = c("red")))) +
-  theme_light() +
-  scale_color_colorblind()
-
-#Adding Plots Together
-p1 + p2 + p3 + guide_area() + plot_layout(ncol = 2, guides = "collect")
-
-
-```
-
-```{r, fig.align = 'center'}
-#Selected By % Plot
-ggplot(d, aes(x=SelectedByPercent, y= 100*(..count..)/sum(..count..))) + 
-  geom_histogram(binwidth=2) +
-  facet_grid(cols = vars(PositionsList)) +
-  ylab("Relative Frequency")+
-  xlab("Selected By %") +
-  theme_light() +
-  scale_color_colorblind()
-
-
-```
-
-
-```{r, fig.align = 'center'}
-#TRANSFORMING DATA
-
-#Rename to Bonus
-d <- d %>% rename("BonusPoints" = "Bonus")
-
-#Add Points from assists
-d <- d %>% 
-  mutate(AssistPoints = Assists * 3)
-
-#Add Defenders Points from Goals and Clean Sheets
-def <- d %>% 
-  filter(PositionsList == "DEF") %>%
-  mutate(GoalsScoredPoints = GoalsScored * 6) %>%
-  mutate(CleanSheetPoints = CleanSheets * 4)
-
-#Add Midfielder Points from Goals and Clean Sheets
-mid <- d %>% 
-  filter(PositionsList == "MID") %>%
-  mutate(GoalsScoredPoints = GoalsScored * 5) %>%
-  mutate(CleanSheetPoints = CleanSheets * 1)
-
-#Add Striker Points from Goals and Clean Sheets
-fwd <- d %>% 
-  filter(PositionsList == "FWD") %>%
-  mutate(GoalsScoredPoints = GoalsScored * 3) %>%
-  mutate(CleanSheetPoints = CleanSheets * 0)
-
-#Add 
-d <- rbind(def, mid, fwd)
-
-```
-
-```{r}
-
-#Select Top 50 players in each position and the ways they scored points
-pointCategories <- d %>%                                      
-  arrange(desc(TotalPoints)) %>% 
-  group_by(PositionsList) %>%
-  slice(1:50) %>%
-  ungroup() %>%
-  select(  "GoalsScoredPoints", "AssistPoints",  "CleanSheetPoints", "BonusPoints", "PositionsList" , 'Surname')
-
-#Parallel Coordinate Plot
-ggparcoord(data = pointCategories, columns = 1:4, groupColumn = 5, scale = "globalminmax" , alphaLines = 0.6 , splineFactor = 4) +
-  ggtitle("How The Top 50 Performing Players Score Points") + 
-  labs(y = "Global MinMax Feature Value", x = "Point Types") +
-  labs(colour = "Position") +
-  theme_light() +
-  scale_color_colorblind()
 
 
 
-```
+Siiiuu
+
+
+
 
