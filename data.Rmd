@@ -1,8 +1,5 @@
 # Data 
 
-```{r}
-# NEED 1 PAGE FOR SOURCES
-```
 ## Sources
 
 ### Location of Data Storage
@@ -116,7 +113,7 @@ ggplot(df_missing_wk3637, aes(Season, factor(Week))) +
   scale_fill_gradient(low = "white", high = "blue", limits=c(0,1000))
 ```
 
-Leveraging the source code of the “plot_missing” function for modification, the missing patterns in the dataset is plotted, showing the affected variables and the percent rows and percent rows missing. We find that about 90% of the data is complete and fully populated. Out of the last 10%, all of them are missing the entry for the first name of the players, and an indiscernible small number of rows are showing a missing pattern of missing YellowCards, CleanSheets, Assists, SelectedByPercent, OwnGoals, MinutesPlayed, and RedCards. Since the first names of the players present little value when the last names are present (since last names in the premier league are usually unique), the data we have on the weeks where available are effectively fully complete for the purpose of our analysis.
+Leveraging the source code of the “plot_missing” function for modification, the missing patterns in the dataset is plotted, showing the affected variables and the percent rows and percent rows missing. We find that about 90% of the data is complete and fully populated. Out of the last 10%, all of them are missing the entry for the first name of the players, and an indiscernible small number of rows are showing a missing pattern of missing YellowCards, CleanSheets, Assists, SelectedByPercent, OwnGoals, MinutesPlayed, and RedCards. Since the first names of the players present little value when the last names are present (since last names in the premier league are usually unique), the data we have on the weeks where available are effectively fully complete for the purpose of our analysis. 
 
 ```{r}
 # Missing Value (NA) Analysis
