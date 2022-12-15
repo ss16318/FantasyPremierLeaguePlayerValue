@@ -119,7 +119,7 @@ The first way we approached the task of determining whether a soccer player is o
 
 ### Filtering Out Bench Players
 
-Before we get started with this analysis, it is important to highlight the fact that we filtered out players who average less than 45 minutes of play time per game. We made this cut because we only wanted to consider players who are on the pitch for more than half of the game on average (a soccer match lasts 90 minutes). In the plot below, we see can see where this cutoff. While it appears that we are filtering out most of soccer players in the league, we want to emphasize that the players we are cutting have little value for our analysis because if they are averaging less than 45 minutes of game time, they are most certainly bench players or injured players. These type of players be of much value because they simply do not spend enough time playing on the pitch, which justifies our choice to cut them from the analysis. 
+Before we get started with this analysis, it is important to highlight the fact that we filtered out players who average less than 45 minutes of play time per game. We made this cut because we only wanted to consider players who are on the pitch for more than half of the game on average (a soccer match lasts 90 minutes). In the plot below, we see can see this cutoff. While it appears that we are filtering out most of soccer players in the league, we want to emphasize that the players we are cutting have little value for our analysis because if they are averaging less than 45 minutes of game time, they are most certainly bench players or injured players. These type of players be of much value because they simply do not spend enough time playing on the pitch, which justifies our choice to cut them from the analysis. 
 
 ```{r, fig.align = 'center'}
 # Plotting Minutes Played
@@ -555,7 +555,7 @@ ggplot(neg_vals, aes(x=Week, y=Cost, group = player_id, colour=factor(delta37_du
 
 What the graph above shows, is that the players which experienced large negative down valuations, pretty much all did so in Week 1, and ended up having an upward trajectory afterwards. Stated otherwise, pretty much every soccer player that produces fewer than expected points in Week 1 goes on fire sale.
 
-On the other hand, the direct opposite was true among players which experienced a cumulative “Cost” increase of £300k or more from their original pricing at any point during the season. 
+On the other hand, the direct opposite was true among players which experienced a cumulative Cost increase of £300k or more from their original pricing at any point during the season. 
 
 On the second graph, we see a very similar large shift in week 1 as fantasy users correct for the first week of games. However, an overwhelming majority of these players were valued lower in Week 37 than they were in Week 1. In other words, they were most overvalued in Week 1 and ultimately declined afterwards. 
 

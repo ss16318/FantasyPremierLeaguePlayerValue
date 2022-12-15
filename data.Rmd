@@ -27,7 +27,7 @@ has the ability to rewind the video feed frame-by-frame in order to make certain
 that the information being distributed is as precise and consistent as possible."
 [https://www.premierleague.com/stats/clarification]
 
-Fantasy Overlord, an database maintained by Fantasy Football enthusiasts
+Fantasy Overlord, a database maintained by Fantasy Football enthusiasts
 attempting to forecast player fantasy performance, routinely scrapes athlete stats from the EPL website, as well 
 as game information from the official site for Fantasy Premier League.
 Given our project's interest lies in how player performance is translated into 'fantasy points', data sets publicly available on fantasyoverlord.com are used. 
@@ -71,7 +71,7 @@ The code we used for data cleaning and transformation can be viewed in the “co
 
 The `import_columns’ list shows the variables from each weekly data set that we compiled. In lines 32-47, we loop through each file, retain the desired columns, and append the observations to a master dataframe. From the filename of each weekly data set, we added a match week (‘Week’) column, as well as distinguished the season (‘Year’). Lastly, we converted field types of numerical fields from strings to numerics for use and later calculations. The resulting dataframe is saved as a .CSV in Data/main with the name "master.csv."
 
-For use, when the data is imported again, three columns are appended AssistPoints, GoalScoredPoints, and CleanSheetsPoints. For every row, the numerical value for each of the following three columns are calculated as follows: for forwards, assists are 3 points, goals are 4 point, and cleansheets are 0 points; for midfielders, assists are 3 points, goals are 5 point, and cleansheets are 1 points; for defenders, assists are 3 points, goals are 5 point, and cleansheets are 4 points.
+For use, when the data is imported again, three columns are appended AssistPoints, GoalScoredPoints, and CleanSheetsPoints, which represnts the conversion from player stats to fantasy points. For every row, the numerical value for each of the following three columns are calculated as follows: for forwards, assists are multiplied by 3, goals are multiplied by 4, and clean sheets are multiplied by 0; for midfielders, assists are multiplied by 3, goals are multiplied by 5, and clean sheets are multiplied by 1; for defenders, assists are multiplied by 3, goals are multiplied by 5, and clean sheets are multiplied by 4. (Note a clean sheet occurs when a team does not concded a goal during a soccer match)
 
 ## Missing value analysis
 
@@ -92,7 +92,7 @@ df_orig <- read_csv("Data/main/master.csv")
 # df_orig <- read_csv("https://raw.githubusercontent.com/ss16318/FantasyPremierLeaguePlayerValue/main/Data/main/master.csv")
 ```
 
-With all CSV files imported, merged, and verified for tidy, we know what an ideal dataset should look like – a dataframe with where observations of athlete performance should exists for every season between 2017 and 2021 for every week in those seasons. We then proceed to visualize the availability of our data over each season and week by showing tiles where they exist, so we can have an understanding of the distribution of observations over Season and Week. In the graph show, we can see that we can missing a few select seemingly random weeks in 2019 and 2020, but in 2019 we also observe that there is a missing pattern where every week after 32, with the exception of 35, is missing. Taking the data to context, one can realize that the missing data from the end of the 2019 season is due to the emergence of Covid-19. With knowledge of what weeks we are missing, we proceed forward in the analysis.
+With all CSV files imported, merged, and verified as tidy, we know what an ideal dataset should look like – a dataframe where observations of athlete performance should exists for every season between 2017 and 2021 for every week in those seasons. We then proceed to visualize the availability of our data over each season and week by showing tiles where they exist, so we can have an understanding of the distribution of observations over Season and Week. In the graph show, we can see that we can missing a few select seemingly random weeks in 2019 and 2020, but in 2019 we also observe that there is a missing pattern where every week after 32, with the exception of 35, is missing. Taking the data to context, one can realize that the missing data from the end of the 2019 season is due to the emergence of Covid-19. With knowledge of what weeks we are missing, we proceed forward in the analysis.
 
 ```{r, fig.align = 'center'}
 # Missing Weeks Analysis
