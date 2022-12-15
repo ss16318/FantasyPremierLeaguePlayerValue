@@ -2,7 +2,7 @@ introduction
 proposal
 research-topic
 data-availability
-date-source
+data-source
 data-file-format-and-importing
 data-fields-available
 data

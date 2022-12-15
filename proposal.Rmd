@@ -5,12 +5,12 @@ Premier League Fantasy Football is a game where participants manage their own fo
 
 While identifying the top players is obvious to fantasy managers, the skill lies in evaluating middle tier players, and identifying up-and-coming talent in the league. As such, the crux of the game is also that of our research question – how can one identify whether a given player is overvalued or undervalued in fantasy football. To do so, we wish to explore correlations between player cost, player position, minutes played, and various performance metrics such as goals, saves, assists, and penalties. Along the way, we will answer questions, such as: Which positions score the most points? How do the most expensive players at the beginning of the season perform over time? Is there a cost-bias for players of similar performance on better teams? Do more expensive players always score the most points?
 
-Before we dive deeper into the analysis of correlation between player cost and various performance metrics, we will first further debrief the game of Fantasy Premier League Football. When the participant first signs up to the game as a Fantasy Premier League (FPL) manager, the participant will be given a budget of 100 Pounds to spend on a roster of 15 players; of the 15 players, two are goalkeepers, five are defenders, five are midfielders, and three are forwards. The FPL manager must then create a team of 11 players of any formation, but must include at least one goalkeeper, three defenders, two midfielders, and one forward. Each Gameweek, the teams score points based on every player’s performance as measured in goals, assists, saves, clean sheets (not conceding goals), and more. 
+Before we dive deeper into the analysis of correlation between player cost and various performance metrics, we will first further debrief the game of Fantasy Premier League Football. When the participant first signs up to the game as a Fantasy Premier League (FPL) manager, the participant will be given a budget of £100 million to spend on a roster of 15 players; of the 15 players, two are goalkeepers, five are defenders, five are midfielders, and three are forwards. The FPL manager must then create a team of 11 players of any formation, but must include at least one goalkeeper, three defenders, two midfielders, and one forward. Each Gameweek, the teams score points based on every player’s performance as measured in goals, assists, saves, clean sheets (not conceding goals), and more. 
 
-As one can quickly realize, every FPL manager is essentially optimizing their budget to get the players that they perceive are the best in performance to cost. The game is a trade off. If superstar players are picked, then less budget is left for other strong middle tier players. If the FPL manage is able to identify cheap middle tier players with high performance, or player who are rising stars in real life, then the FPL manager will be able to score more points than other FPL managers and win the game. Therefore, FPL managers with good understanding of the cost performance correlations could have an advantage in building their team, and this project will attempt to discovery correlations between between player cost and all performance parameters.
+As one can quickly realize, every FPL manager is essentially optimizing their budget to get the players that they perceive have the best in performance to cost. The game is a trade off. If superstar players are picked, then less budget is left for other strong middle tier players. If the FPL manage is able to identify cheap middle tier players with high performance, or players who are rising stars in real life, then the FPL manager will be able to score more points than other FPL managers and win the game. Therefore, FPL managers with good understanding of the cost performance correlations could have an advantage in building their team, and this project will attempt to discovery correlations between between player cost and all performance parameters.
 
 ## Data availability
-### Date Source
+### Data Source
 
 According the English Premier League's Website, the official Premier League performance
 data is collected and analyzed by Opta, a third party analytics company. The data
@@ -38,7 +38,7 @@ attempting to forecast player fantasy performance. While we won't be leveraging
 the website's models or predictions, Fantasy Overlord makes their data publicly 
 available on their site. On Fantasy Overlord’s “About” page, the website states 
 the player performance data is web scrapped directly from The Premier League’s 
-website, and is routinely updated every 30 minutes. The about page also indicates 
+website, and is routinely updated every 30 minutes. The About page also indicates 
 how long ago the data was last scraped. As mentioned, Fantasy Overlord conveniently
 combines the publicly available data on the EPL website, and the translated 
 fantasy point totals.
@@ -62,7 +62,7 @@ to contact our sources of data should there be doubt about accuracy.
 
 ### Data File Format and Importing
 Fantasy Overlord's data is organized in CSV files by Game week, spanning the 
-full 2017 and 2021 seasons. Each Premier League season is composed of 38 match 
+full 2017 through 2021 seasons. Each Premier League season is composed of 38 match 
 weeks, during which each of the 20 teams play one game. As such, "Games" among 
 fantasy players occur over the course of a full week, ensuring that all players 
 on a fantasy roster record a performance which translates to points. 
@@ -81,7 +81,7 @@ year of the appended data should be achievable.
 The CSV files contains basic player attributes such as: Name, Position, and Team.
 Player performance metrics include Total Points, Assists, Minutes Played, Goals Scored, 
 Yellow Cards, Red Cards, and Clean Sheets. Player cost metrics include Cost, 
-Total Points Per Dollar, Average Points Per Dollar, and Price Change From Previous Week.
+Total Points Per Pound, Average Points Per Pound, and Price Change From Previous Week.
 Lastly, player point metrics include Points Last Round, Total Points, and Average Points 
 Per Week.
 

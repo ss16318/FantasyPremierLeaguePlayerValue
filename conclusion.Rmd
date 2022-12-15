@@ -4,16 +4,38 @@
 # main takeaways of your exploration, limitations, future directions, lessons learned.
 ```
 
-From all the analysis the were performed, the team arrived at several interesting conclusions, and they are as follows. Regardless of position, whether if players are forwards, midfielders, or defenders, players with high number of Total Fantasy Points are correlated with higher Cost, and the two variables are positively correlated. While forwards cost more than defenders and scores more total points than defenders, the defenders actually have the highest median Total Points per Cost. As expected from the definition of roles, defenders scores most points by clean sheets, and forwards and midfielders score the most fantasy points by scoring goals.
+**Key Takeaways**
 
-Teams in the “big six”, Manchester City (MCI), Liverpool (LIV), Chelsea (CHE), Tottenham (TOT), Arsenal (ARS), and Manchester United (MUN), have the most number of superstars and their cost distributions are multinodal and extremely skew right. While these superstar players have high performance, they also carry high cost and big expectations, so with all things considered, for someone playing fantasy, this person is better off choosing a top 5 player from a lower standing team rather than a top 6-10 player on a higher team to maximize return of investment (ROI).
+From the analysis that we performed, the team arrived at several interesting conclusions, and they are as follows:
 
-In analyzing the cost of players from week 0 to week 37, almost all players who had a large negative price adjustment on week 1 had seen positive increases to their cost throughout the season, this signals that a good playing strategy for playing Fantasy Premier League (FPL) is to identify these fire-sale players and select them and keep them throughout the season.
+1. Regardless of position, whether if players are forwards, midfielders, or defenders, there is a positive correlation between total fantasy points scored in a season and player cost. 
 
-While we found that there is a weak positive correlation between Selected-by Percentage and Total Point per Cost due to the knowledge depth of fans/enthusiasts (a population with selection bias) who choose to play FPL, there remains a large portion of players with high Total Points per Cost and low Selected-By Percentage, who the general fan base were not able to identify as good value fantasy drafts.
+2. While forwards score the most fantasy points, they also cost the most. Moreover, defenders score the fewest points and cost the least. When looking at the total points per cost across all positions, we did not find that one position has a significantly higher points per cost ratio than the others. 
 
-In the last graph we presented, we find that Cost and Selected-By Percentage have large association with respect to time and we hypothesize that both variables are confounding to a third variable – the player performance of the latest week. This hypothesis is the compass that points to the topic of interest for further exploration: the need for a closer look at the data from a time series perspective, to see how all the variables interaction week after week.
+3. As expected from the definition of roles, defenders scores most points by clean sheets, and forwards and midfielders score the most fantasy points by scoring goals.
 
-With everything that we have uncovered we must not forget that initially we filtered out players who did not have large playing time, therefore, it is possible that with the inclusion of those with lower playing time or even those “bench players” that a different conclusion could be arrived from data exploratory analysis.
+4. Teams in the “big six”, Manchester City (MCI), Liverpool (LIV), Chelsea (CHE), Tottenham (TOT), Arsenal (ARS), and Manchester United (MUN), have the most number of superstars and their cost distributions are multi-modal and extremely skew right. 
 
-A good lessons that the team learned is that data exploration is comparable to telling a story, where a discovery from Graph A can call for the creation of Graph B, which in turn can call for the creation of Graph C. Due of the nature of the group project, the team initially started by hypothesizing relationships independent of any findings and 9 graphs were proposed and created simultaneously, which was not a successful workflow strategy as ultimately many of those graphs ended up being not presented as they added minimal value and less insight than secondary follow up graphs created inresponse to finding from other graphs from the “first pass”. Therefore, a takeaway for effective analysis workflow is to iteratively create graphs and draw conclusions and design the next graph based on the findings from the previous one. In this fashion, the total knowledge about the data set is perpetually increased in the most efficient way (similar to a dynamic programming algorithm).
+5. While these superstar players have high performance, they also carry high cost and big expectations. With all things considered, for someone playing fantasy, this person is better off choosing a top 5 player from a lower standing team rather than a top 6-10 player on a higher team to maximize return of investment (ROI).
+
+6. In analyzing the cost of players from week 0 to week 37, almost all players who had a large negative price adjustment on week 1 had seen positive increases to their cost throughout the season. This signals that a good strategy for Fantasy Premier League (users is to identify these fire-sale players, add them to the FPL team and keep them throughout the season.
+
+7. We found that there is a weak positive correlation between Selected By Percentage and Total Point per cost. However, we believe that FPL users typically have a selection bias toward superstar soccer players. Hence,
+there remains a large portion of players with high Total Points per cost and low Selected By Percentage, who the general FPL user was not able to identify as valuable. 
+
+8. In the last perspective of exploratory analysis, we found that cost and Selected By Percentage have a time-dependent relationship. We hypothesize that both variables are confounding to a third variable – the player performance of the latest week. This hypothesis is the compass that points to the topic of interest for further exploration: the need for a closer look at the data from a time series perspective, to see how all the variables interaction week after week.
+
+**Limitations and Further Work**
+With everything that we have uncovered we must not forget that initially we filtered out players who did not have large playing time. Therefore, it is possible that with the inclusion of those with lower playing time or even those “bench players” that a different conclusion could be arrived from data exploratory analysis.
+
+Another point to mention is the fact that we based our analysis on fundamental player statistics, such as goals, assists and clean sheets. When looking at similar analysis of choosing FPL players, there is a lot of research into finding the cutting edge using advanced sports analytics. We believe that further work could look to incorporate these advanced analytics into the analysis, while maintaining a similar level explainability and interpretability that was used in this report. 
+
+As for other directions of further work, we would like to investigate week-by-week trends seen between variables in more depth and test whether the findings of the previous 5 seasons hold for this 2022 season, which has been disrupted by the first winter World Cup. Therefore, at the end of the season we would be interested to test whether our time-independence assumption for the analysis holds with this usual season scheduling. 
+
+**Lessons Learned**
+
+* The team learned that data exploration is comparable to telling a story, where a discovery from Graph A can call for the creation of Graph B, which in turn can call for the creation of Graph C. In writing this report, the team realized that a well-structured report on exploratory analysis tells a story about how one idea leads to the next.
+
+* Due of the nature of the group project, the team initially started by hypothesizing relationships independent of any findings and 9 graphs were proposed and created simultaneously, which was not a successful workflow strategy as ultimately many of those graphs ended up being not presented as they added minimal value and less insight than secondary follow up graphs created in response to finding from other graphs from the “first pass”. Therefore, a key takeaway for effective exploratory analysis is to iteratively create graphs, draw conclusions and design the next graph based on the findings from the previous one. In this fashion, the total knowledge about the data set is perpetually increased in the most efficient way (similar to a dynamic programming algorithm).
+
+* Creating a color-vision deficiency friendly...

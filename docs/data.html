@@ -78,7 +78,7 @@
 <li class="chapter" data-level="2.1" data-path="proposal.html"><a href="proposal.html#research-topic"><i class="fa fa-check"></i><b>2.1</b> Research topic</a></li>
 <li class="chapter" data-level="2.2" data-path="proposal.html"><a href="proposal.html#data-availability"><i class="fa fa-check"></i><b>2.2</b> Data availability</a>
 <ul>
-<li class="chapter" data-level="2.2.1" data-path="proposal.html"><a href="proposal.html#date-source"><i class="fa fa-check"></i><b>2.2.1</b> Date Source</a></li>
+<li class="chapter" data-level="2.2.1" data-path="proposal.html"><a href="proposal.html#data-source"><i class="fa fa-check"></i><b>2.2.1</b> Data Source</a></li>
 <li class="chapter" data-level="2.2.2" data-path="proposal.html"><a href="proposal.html#data-file-format-and-importing"><i class="fa fa-check"></i><b>2.2.2</b> Data File Format and Importing</a></li>
 <li class="chapter" data-level="2.2.3" data-path="proposal.html"><a href="proposal.html#data-fields-available"><i class="fa fa-check"></i><b>2.2.3</b> Data Fields Available</a></li>
 </ul></li>
@@ -190,14 +190,21 @@ data collection undermines their objective of providing accurate forecasts.</p>
 <h2><span class="header-section-number">3.2</span> Cleaning / transformation<a href="data.html#cleaning-transformation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>The code we used for data cleaning and transformation can be viewed in the “combine_data_v2.Rmd” file. Our data for each season is parsed across one file for each week, as such the first step in our transformation process was to compile all of the weeks and seasons into one dataset.</p>
 <p>The `import_columns’ list shows the variables from each weekly data set that we compiled. In lines 32-47, we loop through each file, retain the desired columns, and append the observations to a master dataframe. From the filename of each weekly data set, we added a match week (‘Week’) column, as well as distinguished the season (‘Year’). Lastly, we converted field types of numerical fields from strings to numerics for use and later calculations. The resulting dataframe is saved as a .CSV in Data/main with the name “master.csv.”</p>
-<p>For use, when the data is imported again, three columns are appended (AssistPoints, GoalScoredPoints, and CleanSheetsPoints), which represnts the conversion from player stats to fantasy points. For every row, the numerical value for each of the following three columns are calculated as follows: for forwards, assists are multiplied by 3, goals are multiplied by 4, and clean sheets are multiplied by 0; for midfielders, assists are multiplied by 3, goals are multiplied by 5, and clean sheets are multiplied by 1; for defenders, assists are multiplied by 3, goals are multiplied by 5, and clean sheets are multiplied by 4. (Note a clean sheet occurs when a team does not concded a goal during a soccer match)</p>
+<p>For use, when the data is imported again, three columns are appended (AssistPoints, GoalScoredPoints, and CleanSheetsPoints), which represnts the conversion from player stats to fantasy points. For every row, the numerical value for each of the following three columns are calculated as follows:</p>
+<ul>
+<li><em>Forwards:</em> assists are multiplied by 3, goals are multiplied by 4, and clean sheets are multiplied by 0</li>
+<li><em>Midfielders:</em> assists are multiplied by 3, goals are multiplied by 5, and clean sheets are multiplied by 1</li>
+<li><em>Defenders:</em> assists are multiplied by 3, goals are multiplied by 5, and clean sheets are multiplied by 4.</li>
+</ul>
+<p>(Note a clean sheet occurs when a team does not conceded a goal during a soccer match)</p>
+<p>Finally, during the transformation process, we decided to eliminate soccer players in the goalkeeper position. We chose to do this because goalkeepers are a specialist position, which makes it difficult to include them with forwards, midfielders and defenders in meaningful analysis.</p>
 </div>
 <div id="missing-value-analysis" class="section level2 hasAnchor" number="3.3">
 <h2><span class="header-section-number">3.3</span> Missing value analysis<a href="data.html#missing-value-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>With all CSV files imported, merged, and verified as tidy, we know what an ideal dataset should look like – a dataframe where observations of athlete performance should exists for every season between 2017 and 2021 for every week in those seasons. We then proceed to visualize the availability of our data over each season and week by showing tiles where they exist, so we can have an understanding of the distribution of observations over Season and Week. In the graph shown, we can see that we are missing a few select seemingly random weeks in 2019 and 2020, but in 2019 we also observe that there is a missing pattern where every week after 32, with the exception of 35, is missing. Taking the data to context, one can realize that the missing data from the end of the 2019 season is due to the emergence of Covid-19. With knowledge of what weeks we are missing, we proceed forward in the analysis.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Leveraging the source code of the “plot_missing” function for modification, the missing patterns in the dataset is plotted, showing the affected variables and the percent rows and percent rows missing. We find that about 90% of the data is complete and fully populated. Out of the last 10%, all of them are missing the entry for the first name of the players, and an indiscernible small number of rows are showing a missing pattern of missing YellowCards, CleanSheets, Assists, SelectedByPercent, OwnGoals, MinutesPlayed, and RedCards. Since the first names of the players present little value when the last names are present (since last names in the premier league are usually unique), the data we have on the weeks where available are effectively fully complete for the purpose of our analysis.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
 
 </div>
 </div>

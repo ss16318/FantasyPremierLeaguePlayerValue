@@ -1,5 +1,3 @@
 # Interactive component
 
 [Click Here To See Vizualization](https://vizhub.com/ss16318/6616a87ab9804c019508afacd8e4e0ca?edit=files)
-
-When the total number of points per player is plotted over the cost of that player in a scatter graph, one can see a clear positive correlation such that player who earn more points cost more. However, given what we know about Simpson's Paradox, there correlation may not be true if we were to segregate the scatter plot by athlete position on the team. Therefore, there is motivation to see if the same positive correlation is retained when we consider for whether if the players are defenders, midfielders, or forwards.

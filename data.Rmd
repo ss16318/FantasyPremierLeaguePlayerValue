@@ -71,7 +71,15 @@ The code we used for data cleaning and transformation can be viewed in the “co
 
 The `import_columns’ list shows the variables from each weekly data set that we compiled. In lines 32-47, we loop through each file, retain the desired columns, and append the observations to a master dataframe. From the filename of each weekly data set, we added a match week (‘Week’) column, as well as distinguished the season (‘Year’). Lastly, we converted field types of numerical fields from strings to numerics for use and later calculations. The resulting dataframe is saved as a .CSV in Data/main with the name "master.csv."
 
-For use, when the data is imported again, three columns are appended (AssistPoints, GoalScoredPoints, and CleanSheetsPoints), which represnts the conversion from player stats to fantasy points. For every row, the numerical value for each of the following three columns are calculated as follows: for forwards, assists are multiplied by 3, goals are multiplied by 4, and clean sheets are multiplied by 0; for midfielders, assists are multiplied by 3, goals are multiplied by 5, and clean sheets are multiplied by 1; for defenders, assists are multiplied by 3, goals are multiplied by 5, and clean sheets are multiplied by 4. (Note a clean sheet occurs when a team does not concded a goal during a soccer match)
+For use, when the data is imported again, three columns are appended (AssistPoints, GoalScoredPoints, and CleanSheetsPoints), which represnts the conversion from player stats to fantasy points. For every row, the numerical value for each of the following three columns are calculated as follows: 
+
+* *Forwards:* assists are multiplied by 3, goals are multiplied by 4, and clean sheets are multiplied by 0 
+* *Midfielders:* assists are multiplied by 3, goals are multiplied by 5, and clean sheets are multiplied by 1
+* *Defenders:* assists are multiplied by 3, goals are multiplied by 5, and clean sheets are multiplied by 4. 
+
+(Note a clean sheet occurs when a team does not conceded a goal during a soccer match)
+
+Finally, during the transformation process, we decided to eliminate soccer players in the goalkeeper position. We chose to do this because goalkeepers are a specialist position, which makes it difficult to include them with forwards, midfielders and defenders in meaningful analysis. 
 
 ## Missing value analysis
 
