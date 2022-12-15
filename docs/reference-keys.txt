@@ -22,3 +22,5 @@ can-we-buy-low-sell-high
 correlation-between-cost-selected-by-percentage
 interactive-component
 conclusion
+location-of-data-storage
+method-of-data-collection

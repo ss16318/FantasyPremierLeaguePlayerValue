@@ -4,20 +4,74 @@
 # NEED 1 PAGE FOR SOURCES
 ```
 ## Sources
-As described in Section 2.2 Data Availability, all available CSV files of athletes' performance for any week in Seasons 2017, 2018, 2019, 2020, and 2021 can be found in the link below. All data downloaded for use can also be found in the Data folder.
+
+### Location of Data Storage
+
+All data to be used for data exploration can be found in the link below.
 
 Source: http://fantasyoverlord.com/FPL/History
 
+All used CSV files of athletes' performance for any week in Seasons 2017, 2018, 2019, 2020, and 2021 can be found in the link and all data downloaded for use can also be found in the Github "Data" folder.
+
+### Method of Data Collection
+
+According the English Premier League's (EPL) website, the official Premier League performance
+data is collected and analyzed by Opta, a third party analytics company, and shared publicly on the EPL website. The data
+collection process is described below:
+
+"Live data is collected by a three-person team covering each match. Two highly 
+trained analysts use a proprietary video-based collection system to gather 
+information on what happens every time a player touches the ball, which player 
+it was and where on the pitch the action occurred... a quality control analyst 
+has the ability to rewind the video feed frame-by-frame in order to make certain 
+that the information being distributed is as precise and consistent as possible."
+[https://www.premierleague.com/stats/clarification]
+
+Fantasy Overlord, an database maintained by Fantasy Football enthusiasts
+attempting to forecast player fantasy performance, routinely scrapes athlete stats from the EPL website, as well 
+as game information from the official site for Fantasy Premier League.
+Given our project's interest lies in how player performance is translated into 'fantasy points', data sets publicly available on fantasyoverlord.com are used. 
+
+The primary reason for using Fantasy 
+Overlord is that their data includes the EPL player performance data, as well as 
+fantasy player 'costs' and fantasy player point totals on a week by week basis, 
+which is not available on the EPL website. Additionally, the data set we're using 
+also represents all information available to fantasy players. While we won't be leveraging
+the website's models or predictions, Fantasy Overlord makes their data publicly 
+available on their website. 
+
+Fantasy Overlord's data is organized in CSV files by Game week, spanning the 
+full 2017 and 2021 seasons. Each Premier League season is composed of 38 match 
+weeks, during which each of the 20 teams play one game. As such, "Games" among 
+fantasy players occur over the course of a full week, ensuring that all players 
+on a fantasy roster record a performance which translates to points. 
+
+The data in one match week file captures the player points applicable in 
+one fantasy game, for all players in the league. For this project, we will be 
+aggregating the 38 match weeks across 5 seasons, for a total of 190 match weeks
+of data. All CSV filed are downloaded and compiled.
+
+The CSV files contains basic player attributes such as: Name, Position, and Team.
+Player performance metrics include Total Points, Assists, Minutes Played, Goals Scored, 
+Yellow Cards, Red Cards, and Clean Sheets. Player cost metrics include Cost, 
+Total Points Per Dollar, Average Points Per Dollar, and Price Change From Previous Week.
+Lastly, player point metrics include Points Last Round, Total Points, and Average Points 
+Per Week.
+
+We believe our data is objective in the sense that no sampling and polls are performed.
+As outlined above, the EPL has processes in place to ensure the performance data 
+they collect is as accurate as possible. Opta has no ulterior motive in 
+manipulating the data to demonstrate any political or financial claim. Fantasy
+Overlord also holds incentives to ensure their data is correct, as errors in 
+data collection undermines their  objective of providing accurate forecasts.
 
 ## Cleaning / transformation
 
 The code we used for data cleaning and transformation can be viewed in the “combine_data_v2.Rmd” file. Our data for each season is parsed across one file for each week, as such the first step in our transformation process was to compile all of the weeks and seasons into one dataset.
 
-The `import_columns’ list shows the variables from each weekly data set that we compiled. In lines 32-47, we loop through each file, retain the desired columns, and append the observations to a master dataframe. From the filename of each weekly data set, we added a match week (‘Week’) column, as well as distinguished the season (‘Year’). Lastly, we converted field types of numerical fields from strings to numerics for use and later calculations.
+The `import_columns’ list shows the variables from each weekly data set that we compiled. In lines 32-47, we loop through each file, retain the desired columns, and append the observations to a master dataframe. From the filename of each weekly data set, we added a match week (‘Week’) column, as well as distinguished the season (‘Year’). Lastly, we converted field types of numerical fields from strings to numerics for use and later calculations. The resulting dataframe is saved as a .CSV in Data/main with the name "master.csv."
 
-The resulting dataframe is saved as a .CSV in Data/main with the name "master.csv."
-
-[maybe talk about the filter cut and the point caculation here]
+For use, when the data is imported again, three columns are appended AssistPoints, GoalScoredPoints, and CleanSheetsPoints. For every row, the numerical value for each of the following three columns are calculated as follows: for forwards, assists are 3 points, goals are 4 point, and cleansheets are 0 points; for midfielders, assists are 3 points, goals are 5 point, and cleansheets are 1 points; for defenders, assists are 3 points, goals are 5 point, and cleansheets are 4 points.
 
 ## Missing value analysis
 
