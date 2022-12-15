@@ -130,7 +130,8 @@ out the majority of soccer players in the league, we want to emphasize that the 
 relevance in our analysis. Given fantasy users can select any 10 players in the 
 league, and competing users can select the same players, it's of no use to include
 soccer players which are unlikely to even play, as users would have no reason
-to select benched or injured players.Given relevant soccer players do get hurt for brief periods during the season, we found that filtering on an average of 45 minutes allowed us to remove irrelevant players,
+to select benched or injured players. Given relevant soccer players do get hurt for brief periods 
+during the season, we found that filtering on an average of 45 minutes allowed us to remove irrelevant players,
 without compromising our data set.
 
 
