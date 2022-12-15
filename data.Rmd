@@ -1,18 +1,20 @@
 # Data 
 
 ## Sources
+As described in Section 2.2 Data Availability, all available CSV files of athletes' performance for any week in Seasons 2017, 2018, 2019, 2020, and 2021 can be found in the link below. All data downloaded for use can also be found in the Data folder.
 
 Source: http://fantasyoverlord.com/FPL/History
-Season stats for 2016 to 2021 season
+
 
 ## Cleaning / transformation
 
-The code we used for data cleaning and transformation can be seen in the “combine_data.Rmd” file. Our data for each season is parsed across one file for each week, as such the first step in our transformation process was to compile all of the weeks and seasons into one dataset. 
+The code we used for data cleaning and transformation can be viewed in the “combine_data_v2.Rmd” file. Our data for each season is parsed across one file for each week, as such the first step in our transformation process was to compile all of the weeks and seasons into one dataset.
 
-The `import_columns’ list shows the variables from each weekly data set that we compiled. In lines 32-47, we loop through each file, retain the desired columns, and append the observations to a master dataframe. From the filename of each weekly data set, we added a match week (‘Week’) column, as well as distinguished the season (‘Year’). Lastly, we converted fields from strings to numerics for later calculations.
+The `import_columns’ list shows the variables from each weekly data set that we compiled. In lines 32-47, we loop through each file, retain the desired columns, and append the observations to a master dataframe. From the filename of each weekly data set, we added a match week (‘Week’) column, as well as distinguished the season (‘Year’). Lastly, we converted field types of numerical fields from strings to numerics for use and later calculations.
 
+The resulting dataframe is saved as a .CSV in Data/main with the name "master.csv."
 
-
+[maybe talk about the filter cut and the point caculation here]
 
 ## Missing value analysis
 
@@ -33,7 +35,7 @@ df_orig <- read_csv("Data/main/master.csv")
 # df_orig <- read_csv("https://raw.githubusercontent.com/ss16318/FantasyPremierLeaguePlayerValue/main/Data/main/master.csv")
 ```
 
-After all CSV files are imported, merged, and tidied, we know what an ideal dataset should look like – a dataframe with where observations should exists for every season between 2017 and 2021 for every week in those seasons. We then proceed to visualize the availability of our data over each season and week by showing tiles where they exist. In the graph show, we can see that we can missing a few select seemingly random weeks in 2019 and 2020, but in 2019 we also observe that there is a missing pattern where every week after 32, with the exception of 35, is missing. Taking the data to context, one can realize that the missing data from the end of the 2019 season is due to the emergence of Covid-19. With knowledge of what weeks we are missing, we proceed forward in the analysis.
+With all CSV files imported, merged, and verified for tidy, we know what an ideal dataset should look like – a dataframe with where observations of athlete performance should exists for every season between 2017 and 2021 for every week in those seasons. We then proceed to visualize the availability of our data over each season and week by showing tiles where they exist, so we can have an understanding of the distribution of observations over Season and Week. In the graph show, we can see that we can missing a few select seemingly random weeks in 2019 and 2020, but in 2019 we also observe that there is a missing pattern where every week after 32, with the exception of 35, is missing. Taking the data to context, one can realize that the missing data from the end of the 2019 season is due to the emergence of Covid-19. With knowledge of what weeks we are missing, we proceed forward in the analysis.
 
 ```{r, fig.align = 'center'}
 # Missing Weeks Analysis
@@ -49,7 +51,7 @@ ggplot(df_missing_wk3637, aes(Season, factor(Week))) +
   scale_fill_gradient(low = "white", high = "blue", limits=c(0,1000))
 ```
 
-Leveraging the source code of the “plot_missing” function for modification, the missing patterns in the dataset is plotted, showing the affected variables and the percent rows and percent rows missing. We find that about 90% of the data is complete and fully populated. Out of the last 10%, all of them are missing the entry for the first name of the players, and an indiscernablly small number of rows are showing a missing patter of missing YellowCards, CleanSheets, Assists, SelectedByPercent, OwnGoals, MinutesPlayed, and RedCards. Since the first names of the players present little value when the last names are present (since last names in the premier league are usually unique), our dataset is effectively complete for the purpose of our analysis.
+Leveraging the source code of the “plot_missing” function for modification, the missing patterns in the dataset is plotted, showing the affected variables and the percent rows and percent rows missing. We find that about 90% of the data is complete and fully populated. Out of the last 10%, all of them are missing the entry for the first name of the players, and an indiscernible small number of rows are showing a missing pattern of missing YellowCards, CleanSheets, Assists, SelectedByPercent, OwnGoals, MinutesPlayed, and RedCards. Since the first names of the players present little value when the last names are present (since last names in the premier league are usually unique), the data we have on the weeks where available are effectively fully complete for the purpose of our analysis.
 
 ```{r}
 # Missing Value (NA) Analysis
