@@ -1,5 +1,21 @@
 # Results
 
+```{r, fig.align = 'center'}
+#buffer to fix plots from overlapping in html index
+```
+
+```{r, fig.align = 'center'}
+#buffer to fix plots from overlapping in html index
+```
+
+```{r, fig.align = 'center'}
+#buffer to fix plots from overlapping in html index
+```
+
+```{r, fig.align = 'center'}
+#buffer to fix plots from overlapping in html index
+```
+
 ```{r}
 # Libraries to use
 library(tidyverse)
@@ -169,7 +185,7 @@ In the next graph, we see boxplots of total points, cost and points per cost for
 
 Interestingly, we also notice that the variation of points per cost is largest for defenders and smallest for forwards. This implies that when choosing forwards, there is a smaller risk of the soccer player being overvalued and a smaller reward for the player being undervalued, while the reverse is true for defenders who have a larger risk and larger reward.
 
-A final note on the graph should be that the average points per cost and median points per cost are approximately aligned, which indicates that the points per cost distributions are symmetric. This suggests that a soccer is as likely to be overvalued or undervalued irrespective of position. 
+A final note on the graph should be that the average points per cost and median points per cost are approximately aligned, which indicates that the points per cost distributions are symmetric. This suggests that a soccer is as likely to be overvalued or undervalued irrespective of position.  
 ```{r, fig.align = 'center'}
 #Boxplot for Points
 p1 <- ggplot(d, aes(x=PositionsList, y=TotalPoints)) + 

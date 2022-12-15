@@ -26,6 +26,7 @@ there remains a large portion of players with high Total Points per cost and low
 8. In the last perspective of exploratory analysis, we found that cost and Selected By Percentage have a time-dependent relationship. We hypothesize that both variables are confounding to a third variable – the player performance of the latest week. This hypothesis is the compass that points to the topic of interest for further exploration: the need for a closer look at the data from a time series perspective, to see how all the variables interaction week after week.
 
 **Limitations and Further Work**
+
 With everything that we have uncovered we must not forget that initially we filtered out players who did not have large playing time. Therefore, it is possible that with the inclusion of those with lower playing time or even those “bench players” that a different conclusion could be arrived from data exploratory analysis.
 
 Another point to mention is the fact that we based our analysis on fundamental player statistics, such as goals, assists and clean sheets. When looking at similar analysis of choosing FPL players, there is a lot of research into finding the cutting edge using advanced sports analytics. We believe that further work could look to incorporate these advanced analytics into the analysis, while maintaining a similar level explainability and interpretability that was used in this report. 
